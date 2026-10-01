@@ -32,13 +32,20 @@
 
 :root {
   /* Anclas de color. Son la referencia de la identidad y no se derivan:
-     el vino del footer, el dorado de los botones y el verde de WhatsApp
-     se leen de acá y el resto de la paleta sale de mezclarlos. */
+     el vino del footer, el dorado de los botones, el verde de WhatsApp
+     y el degradé de Instagram se leen de acá y el resto de la paleta sale
+     de mezclarlos. */
   --vino: #7c1f2d;
   --vino-profundo: #4f1420;
   --dorado: #c19a4b;
   --dorado-luz: #e4cd97;
   --whatsapp: #25d366;
+  /* Degradé de marca de Instagram: no pertenece a la paleta del sitio, es
+     el color de la red y por eso queda anclado acá y no mezclado. */
+  --instagram-1: #f9ce34;
+  --instagram-2: #ee2a7b;
+  --instagram-3: #6228d7;
+  --instagram-4: #4f5bd5;
 
   /* Bases: fondos, tinta y texto. */
   --marfil: #fdf9f4;
@@ -104,6 +111,12 @@
      Mobile (<640px) se recorta a 44px en el bloque responsive. */
   --section-y: clamp(44px, 5.5vw, 76px);
 
+  /* Botones flotantes: tamaño, anclaje y separación de la pila. El de
+     WhatsApp queda abajo y el de Instagram se apila encima. */
+  --fab-size: 56px;
+  --fab-bottom: 18px;
+  --fab-gap: 12px;
+
   /* Sombras */
   --shadow-sm: 0 2px 10px rgba(76, 20, 32, 0.06);
   --shadow-md: 0 14px 34px -18px rgba(76, 20, 32, 0.34);
@@ -125,6 +138,7 @@
   --brillo-borde: 0;
   --parallax: 0px;
   --pulse-fab: none;
+  --pulse-fab-ig: none;
   --resplandor-dorado: transparent;
   --sombra-extra: 0;
   --borde-oro-alpha: 0;
@@ -144,6 +158,7 @@ html[data-intensity="sutil"] {
   --brillo-borde: 0;
   --parallax: 0px;
   --pulse-fab: none;
+  --pulse-fab-ig: none;
   --resplandor-dorado: transparent;
   --sombra-extra: 0;
   --borde-oro-alpha: 0;
@@ -163,6 +178,7 @@ html[data-intensity="media"] {
   --brillo-borde: 0.4;
   --parallax: 6px;
   --pulse-fab: none;
+  --pulse-fab-ig: none;
   --resplandor-dorado: color-mix(in srgb, var(--dorado) 10%, transparent);
   --sombra-extra: 6px;
   --borde-oro-alpha: 0.3;
@@ -182,6 +198,8 @@ html[data-intensity="max"] {
   --brillo-borde: 1;
   --parallax: 12px;
   --pulse-fab: pulse-wa 2.6s ease-in-out infinite;
+  /* Mas suave y desfasado del de WhatsApp: los dos no laten a la vez. */
+  --pulse-fab-ig: pulse-ig 3.4s ease-in-out 1.7s infinite;
   --resplandor-dorado: color-mix(in srgb, var(--dorado) 18%, transparent);
   --sombra-extra: 16px;
   --borde-oro-alpha: 0.6;
@@ -356,6 +374,7 @@ main,
 .site-header,
 .site-footer,
 .floating-wa,
+.floating-ig,
 .reading-progress,
 .modal-overlay,
 .lightbox {
@@ -1652,27 +1671,49 @@ button.service-card {
   transform: scale(1.06);
 }
 
-/* Velo inferior para que el título y el contador se lean sobre la foto.
-   Sube a 0,88 de opacidad en el 44% de la altura porque el bloque de texto
-   arranca más arriba de lo que sugería el degradé anterior: medido sobre el
-   navegador, el título queda en 11:1 y el contador dorado en 5,4:1 incluso en
-   la tarjeta más baja, y el tercio superior de la foto queda limpio. */
+/* Velo inferior de las tarjetas con foto. La zona limpia se adapta a la altura
+   real de cada tarjeta porque el bloque de texto va anclado abajo y arranca
+   entre el 43% (1440 px, tarjeta de 300 px) y el 15% (390 px, tarjeta de 180
+   px): con un 40% fijo el ícono y el título quedaban sobre foto sin velar y
+   medidos en Chrome a 1440/1024/768/390 el ícono dorado caía a 1,3:1.
+   --velo-limpio marca el tramo sin tinte y --velo-medio dónde la meseta ya es
+   total; cada breakpoint baja esos dos valores. La meseta es 0,62 y al apuntar
+   la tarjeta sube a 0,72, el techo que fijó el diseño. */
+.gallery-cat-card--con-medios {
+  --velo-limpio: 38%;
+  --velo-medio: 48%;
+  --velo-plato: 62%;
+  --velo-hover: 72%;
+}
+
 .gallery-cat-card--con-medios::after {
   content: "";
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 55%, transparent) 30%, color-mix(in srgb, var(--vino-noche) 88%, transparent) 44%, color-mix(in srgb, var(--vino-noche) 94%, transparent) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) var(--velo-limpio), color-mix(in srgb, var(--vino-noche) 28%, transparent) calc((var(--velo-limpio) + var(--velo-medio)) / 2), color-mix(in srgb, var(--vino-noche) var(--velo-plato), transparent) var(--velo-medio), color-mix(in srgb, var(--vino-noche) var(--velo-plato), transparent) 100%);
+  transition: background 0.4s ease;
   pointer-events: none;
 }
 
+/* Al apuntar la tarjeta el velo se refuerza, pero sin pasar de 0,72 abajo. */
+.gallery-cat-card--con-medios:hover::after,
+.gallery-cat-card--con-medios:focus-visible::after {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) var(--velo-limpio), color-mix(in srgb, var(--vino-noche) 36%, transparent) calc((var(--velo-limpio) + var(--velo-medio)) / 2 - 3%), color-mix(in srgb, var(--vino-noche) var(--velo-hover), transparent) calc(var(--velo-medio) - 4%), color-mix(in srgb, var(--vino-noche) var(--velo-hover), transparent) 100%);
+}
+
 /* La banda ancha (docencia) lleva el texto en una fila centrada, así que el velo
-   tiene que ser horizontal: una meseta opaca del 27% al 73% cubre el bloque de
-   texto en todos los anchos de la banda (768 px a 1440 px) y deja ver la foto en
-   los bordes. Contra el peor caso (foto blanca pura) el contador dorado queda en
-   7,6:1 y el título crema en 11,5:1. */
+   tiene que ser horizontal: una meseta del 26% al 74% cubre el bloque de texto en
+   todos los anchos de la banda (900 px a 1440 px) y deja ver la foto en los
+   bordes. Al apuntarla la meseta sube a 0,72. */
 .gallery-cat-card:nth-child(7).gallery-cat-card--con-medios::after {
-  background: linear-gradient(90deg, color-mix(in srgb, var(--vino-noche) 12%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 86%, transparent) 27%, color-mix(in srgb, var(--vino-noche) 86%, transparent) 73%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 84%, color-mix(in srgb, var(--vino-noche) 12%, transparent) 100%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 22%, transparent) 14%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 26%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 74%, color-mix(in srgb, var(--vino-noche) 22%, transparent) 86%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 100%);
+  transition: background 0.4s ease;
+}
+
+.gallery-cat-card:nth-child(7).gallery-cat-card--con-medios:hover::after,
+.gallery-cat-card:nth-child(7).gallery-cat-card--con-medios:focus-visible::after {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 30%, transparent) 14%, color-mix(in srgb, var(--vino-noche) 72%, transparent) 26%, color-mix(in srgb, var(--vino-noche) 72%, transparent) 74%, color-mix(in srgb, var(--vino-noche) 30%, transparent) 86%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 100%);
 }
 
 .gallery-cat-card--con-medios {
@@ -1712,13 +1753,21 @@ button.service-card {
 
 /* Sombra de texto como piso de seguridad: aunque alguien reemplace la portada por
    una muy clara, o el navegador difumine el velo, el texto sigue siendo legible.
-   Usa el vino profundo de la paleta, así que no introduce ningún color nuevo. */
+   Usa el vino profundo de la paleta, así que no introduce ningún color nuevo.
+   Con el velo aligerado la sombra pasa a 0,9 de opacidad y suma un halo corto,
+   porque a 390 px la tarjeta baja deja el ícono sobre el tramo aún sin tintar. */
 .gallery-cat-card--con-medios .gallery-caption {
-  text-shadow: 0 1px 12px color-mix(in srgb, var(--vino-noche) 60%, transparent);
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--vino-noche) 90%, transparent), 0 2px 14px color-mix(in srgb, var(--vino-noche) 85%, transparent);
 }
 
 .gallery-cat-card--con-medios .cat-count {
-  text-shadow: 0 1px 10px color-mix(in srgb, var(--vino-noche) 75%, transparent);
+  text-shadow: 0 1px 2px color-mix(in srgb, var(--vino-noche) 90%, transparent), 0 2px 12px color-mix(in srgb, var(--vino-noche) 88%, transparent);
+}
+
+/* El ícono es un SVG, así que text-shadow no le aplica: el halo se pinta con
+   drop-shadow, que sigue la forma del trazo en vez de la caja del elemento. */
+.gallery-cat-card--con-medios .cat-icon {
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--vino-noche) 95%, transparent)) drop-shadow(0 0 10px color-mix(in srgb, var(--vino-noche) 90%, transparent)) drop-shadow(0 0 20px color-mix(in srgb, var(--vino-noche) 80%, transparent));
 }
 
 /* ---------- Estado SIN medios ---------- */
@@ -2689,29 +2738,55 @@ button.service-card {
   color: color-mix(in srgb, var(--champagne) 66%, transparent);
 }
 
-.floating-wa {
+/* Los dos botones flotantes comparten base: tamaño, forma, anclaje, apilado
+   y comportamiento. Cada uno aporta el degradé de su marca. El de Instagram
+   va arriba y el de WhatsApp no se mueve. */
+.floating-wa,
+.floating-ig {
   position: fixed;
   right: 18px;
-  bottom: 18px;
+  bottom: var(--fab-bottom);
   z-index: 118;
-  width: 56px;
-  height: 56px;
+  width: var(--fab-size);
+  height: var(--fab-size);
   display: grid;
   place-items: center;
   border-radius: 50%;
   font-size: 1.5rem;
   color: var(--marfil);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.floating-wa {
   background-color: var(--whatsapp);
   background-image: linear-gradient(150deg, var(--whatsapp-claro), var(--whatsapp-oscuro));
   box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--whatsapp) 60%, transparent);
   animation: var(--pulse-fab);
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+/* El degradé de Instagram ordena los cuatro tonos de la marca de punta a
+   punta: el glifo queda siempre sobre la franja media (magenta a azul), que
+   es la única que sostiene 3:1 con el glifo claro. */
+.floating-ig {
+  bottom: calc(var(--fab-bottom) + var(--fab-size) + var(--fab-gap));
+  background-color: var(--instagram-3);
+  background-image: linear-gradient(150deg, var(--instagram-1) 0%, var(--instagram-2) 30%, var(--instagram-3) 62%, var(--instagram-4) 100%);
+  box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--instagram-3) 60%, transparent);
+  animation: var(--pulse-fab-ig);
+}
+
+.floating-wa:hover,
+.floating-ig:hover {
+  color: var(--marfil);
+  transform: scale(1.07);
 }
 
 .floating-wa:hover {
-  color: var(--marfil);
-  transform: scale(1.07);
   box-shadow: 0 16px 34px -8px color-mix(in srgb, var(--whatsapp) 72%, transparent);
+}
+
+.floating-ig:hover {
+  box-shadow: 0 16px 34px -8px color-mix(in srgb, var(--instagram-3) 72%, transparent);
 }
 
 /* =========================================================================
@@ -2763,6 +2838,20 @@ button.service-card {
   }
 }
 
+/* Pulso del botón de Instagram: mismo lenguaje, con el anillo más chico y
+   menos cargado, y con periodo y retraso propios para no coincidir con el de
+   WhatsApp (2.6s sin retraso). */
+@keyframes pulse-ig {
+  0%,
+  70%,
+  100% {
+    box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--instagram-3) 55%, transparent), 0 0 0 0 color-mix(in srgb, var(--instagram-2) 34%, transparent);
+  }
+  35% {
+    box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--instagram-3) 55%, transparent), 0 0 0 9px color-mix(in srgb, var(--instagram-2) 0%, transparent);
+  }
+}
+
 @keyframes floaty {
   0%,
   100% {
@@ -2810,6 +2899,12 @@ button.service-card {
 
 /* 1100 - 1279px: se oculta sólo el eslogan y se reduce el gap del menú. */
 @media (max-width: 1279.98px) {
+  /* A 1024 px la tarjeta baja a 260 px y el bloque de texto arranca en el 31%
+     de la altura, así que la zona sin tinte tiene que bajar también. */
+  .gallery-cat-card--con-medios {
+    --velo-limpio: 26%;
+    --velo-medio: 38%;
+  }
   .logo-text .bottom {
     display: none;
   }
@@ -2895,6 +2990,13 @@ button.service-card {
 
 /* Consultoría: por debajo de 900px las columnas se apilan con altura natural. */
 @media (max-width: 899.98px) {
+  /* La tarjeta de dos columnas mide 200-230 px y el texto arranca en el 26%:
+     con menos zona limpia el ícono dorado queda sobre la meseta y sigue
+     legible, que es lo que pide el contraste medido. */
+  .gallery-cat-card--con-medios {
+    --velo-limpio: 20%;
+    --velo-medio: 31%;
+  }
   .consultoria-grid {
     grid-template-columns: 1fr;
   }
@@ -2905,6 +3007,12 @@ button.service-card {
 }
 
 @media (max-width: 700px) {
+  /* A una columna la tarjeta baja a 180 px y el ícono arranca en el 15% de la
+     altura: con el 40% sin tinte el bloque entero quedaba sobre foto sin velo. */
+  .gallery-cat-card--con-medios {
+    --velo-limpio: 10%;
+    --velo-medio: 21%;
+  }
   body {
     font-size: 16px;
   }
@@ -2912,6 +3020,9 @@ button.service-card {
     --gutter: 18px;
     /* Mobile: una sola respiración de 44px por lado. */
     --section-y: 44px;
+    /* Los dos botones flotantes se achican juntos, así el de Instagram
+       sigue apoyado sobre el de WhatsApp. */
+    --fab-size: 52px;
   }
   .hero-content {
     text-align: left;
@@ -2950,9 +3061,11 @@ button.service-card {
   .gallery-cat-card:nth-child(7) .gallery-caption {
     font-size: 1.12rem;
   }
-  /* La banda vuelve a columna centrada: el velo tiene que ser vertical de nuevo. */
+  /* La banda vuelve a columna centrada: el velo tiene que ser vertical de nuevo.
+     Reutiliza las mismas variables del bloque vertical para que los dos
+     sentidos del velo no se desincronicen al cambiar de breakpoint. */
   .gallery-cat-card:nth-child(7).gallery-cat-card--con-medios::after {
-    background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 55%, transparent) 30%, color-mix(in srgb, var(--vino-noche) 88%, transparent) 44%, color-mix(in srgb, var(--vino-noche) 94%, transparent) 100%);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) var(--velo-limpio), color-mix(in srgb, var(--vino-noche) 28%, transparent) calc((var(--velo-limpio) + var(--velo-medio)) / 2), color-mix(in srgb, var(--vino-noche) var(--velo-plato), transparent) var(--velo-medio), color-mix(in srgb, var(--vino-noche) var(--velo-plato), transparent) 100%);
   }
   .lightbox__figure img,
   .lightbox__video {
@@ -2972,31 +3085,42 @@ button.service-card {
     grid-template-columns: 1fr;
     justify-items: start;
   }
+  /* Los dos botones flotantes se apilan y ocupan dos alturas: el pie deja
+     libre justo ese alto para que el copyright no quede debajo de ellos. */
+  .site-footer {
+    padding-bottom: calc(var(--fab-bottom) + (var(--fab-size) * 2) + var(--fab-gap) + 10px);
+  }
   .lightbox__nav {
     width: 42px;
     height: 42px;
   }
-  .floating-wa {
-    width: 52px;
-    height: 52px;
-  }
 }
 
 @media (max-width: 420px) {
+  /* La fila del header no entraba a 390 px: marca 196 + CTA 176 + burger 44
+     sumaban 383 px en una caja de 358 px y empujaban el documento a 399 px
+     (scroll horizontal). Aquí se aprieta marca y CTA para que entre la fila
+     completa sin tocar el markup. */
   .logo-mark {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
-    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    flex-basis: 34px;
+    font-size: 0.9rem;
   }
   .logo {
-    gap: 10px;
+    gap: 8px;
   }
   .logo-text .top {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
+    letter-spacing: 0;
+  }
+  .nav-cta {
+    gap: 8px;
   }
   .nav-cta .btn {
-    padding: 9px 12px;
+    padding: 9px 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.04em;
   }
 }
 
@@ -3026,7 +3150,8 @@ button.service-card {
     opacity: 1;
     transform: none;
   }
-  .floating-wa {
+  .floating-wa,
+  .floating-ig {
     animation: none;
   }
   [data-parallax] {
@@ -3054,6 +3179,7 @@ button.service-card {
 @media print {
   .site-header,
   .floating-wa,
+  .floating-ig,
   .reading-progress,
   .mobile-menu,
   .overlay,

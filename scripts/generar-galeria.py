@@ -15,6 +15,7 @@ Qué hace
      NN.jpg / NN.webp        → foto completa, lado mayor máx. 1600 px (sin agrandar)
      NN-thumb.jpg / .webp    → miniatura de la tira, lado mayor máx. 480 px
      portada.jpg / portada.webp → fondo de la tarjeta del mosaico
+        (la portada descarta antes el marco blanco de la foto, si lo tiene)
 4. Genera `assets/js/galeria-data.js` con `window.DI_GALERIA`.
 
 Es idempotente: al re-ejecutarlo regenera todo y no deja archivos viejos.
@@ -92,6 +93,16 @@ CALIDAD_WEBP_PORTADA = 82
 
 MIN_ANCHO_PORTADA_ANCHA = 600   # resolución mínima para una portada horizontal
 
+# Marco blanco de la portada: varias fotos llegan exportadas con un borde blanco
+# de la foto. Se descarta antes de recortar para que no quede una banda clara
+# dentro de la tarjeta. UMBRAL_MARGEN_BLANCO es la diferencia mínima contra el
+# blanco puro para considerar un píxel "blanco", MARGEN_BLANCO_MINIMO impide que
+# se recorte una foto que sólo tiene una orla fina, y MARGEN_BLANCO_MAXIMO impide
+# que un fondo claro que llega al borde se confunda con un marco.
+UMBRAL_MARGEN_BLANCO = 10
+MARGEN_BLANCO_MINIMO = 12   # px de banda que hay que descartar, como mínimo
+MARGEN_BLANCO_MAXIMO = 0.12  # tope por lado, para no comerse parte de la foto
+
 ARCHIVOS_GENERADOS = re.compile(r"^(\d{2}(-thumb)?\.(jpg|jpeg|webp)|portada\.(jpg|jpeg|webp))$")
 
 
@@ -125,6 +136,45 @@ def escalar(im, lado_maximo):
     escala = lado_maximo / float(max(ancho, alto))
     destino = (max(1, int(round(ancho * escala))), max(1, int(round(alto * escala))))
     return im.resize(destino, Image.LANCZOS)
+
+
+def quitar_margen_blanco(im, umbral=UMBRAL_MARGEN_BLANCO, minimo=MARGEN_BLANCO_MINIMO,
+                         maximo=MARGEN_BLANCO_MAXIMO):
+    """Recorta el marco blanco de la foto, si lo tiene.
+
+    Un píxel cuenta como blanco cuando está a menos de `umbral` del blanco puro, y
+    una banda es margen sólo si TODA su altura (o su ancho) es blanca. Medir la
+    banda así, en vez de pedir una caja envolvente, evita que el ruido de JPEG
+    alargue el recorte: una foto que llega al borde con blanco propio —un vestido
+    de novia, un fondo de estudio— no pierde contenido. Sólo se descarta una banda
+    de `minimo` px o más, y nunca más del `maximo` de ese lado, para que un fondo
+    claro dentro de la foto no se confunda con un marco.
+    """
+    ancho, alto = im.size
+    if min(ancho, alto) < minimo * 3:
+        return im
+
+    # 0 = blanco, 255 = contenido.
+    mascara = im.convert("L").point(lambda v: 0 if v >= 255 - umbral else 255).convert("F")
+    # El reescalado a 1 px promedia: cada valor es el tanto de contenido de su fila
+    # o de su columna.
+    por_fila = list(mascara.resize((1, alto), Image.BOX).getdata())
+    por_col = list(mascara.resize((ancho, 1), Image.BOX).getdata())
+    tol = 255.0 * 0.01          # una banda es margen si es blanca en el 99%
+    tope = max(minimo, int(round(max(ancho, alto) * maximo)))
+
+    def banda(perfil):
+        n = 0
+        while n < tope and perfil[n] <= tol:
+            n += 1
+        return n if n >= minimo else 0
+
+    x0, x1 = banda(por_col), banda(por_col[::-1])
+    y0, y1 = banda(por_fila), banda(por_fila[::-1])
+    if not (x0 or x1 or y0 or y1):
+        return im
+
+    return im.crop((x0, y0, ancho - x1, alto - y1))
 
 
 def recortar(im, proporcion, foco_y):
@@ -325,6 +375,13 @@ def procesar_categoria(carpeta_nombre, clave, forma, titulo, proporcion, foco_y)
         nombre_elegida = elegida[0]
         origen = next(r for i, r in enumerate(rutas, start=1) if "%02d" % i == nombre_elegida)
         im = abrir(origen)
+        sin_margen = quitar_margen_blanco(im)
+        if sin_margen.size != im.size:
+            mensajes.append("portada: marco blanco descartado %s -> %s"
+                            % ("x".join(str(v) for v in im.size),
+                               "x".join(str(v) for v in sin_margen.size)))
+            im.close()
+            im = sin_margen
         im = recortar(im, proporcion, foco_y)
         im = escalar_anchura(im, ANCHO_PORTADA)
         portada_w, portada_h = im.size

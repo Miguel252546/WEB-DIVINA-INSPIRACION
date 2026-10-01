@@ -78,7 +78,8 @@ siempre: si el `.webp` falta, el navegador **no** cae al `<img>` y la imagen que
 | `#contacto` | Contacto | Formulario validado que deriva a WhatsApp |
 
 Además: modal de **Bendito Espejo** y **visor de galería** (navegación por teclado, swipe,
-tira de miniaturas y estado vacío con acceso a WhatsApp) y botón flotante de WhatsApp.
+tira de miniaturas y estado vacío con acceso a WhatsApp) y dos botones flotantes, el de
+WhatsApp y el de Instagram apilado encima.
 
 ---
 
@@ -182,6 +183,14 @@ Detalles que resuelve el generador:
   ancha (`docencia`) prefieren una foto horizontal de proporción ≥ 1,3; las de 1 columna
   (`novias`, `prensa`, `espejo`, `corporativos`) prefieren una vertical o cuadrada. Si
   ninguna cumple, se usa la primera.
+- **Marco blanco**: antes de recortar la portada se le quita el marco blanco de la foto
+  (`quitar_margen_blanco`). Una banda sólo cuenta como marco si es blanca en *toda* su
+  altura o en *todo* su ancho, así que el ruido del JPEG no engaña al recorte, y nunca se
+  descarta más del 12 % de ese lado: un fondo de estudio claro o un vestido blanco que
+  llegan al borde siguen intactos. Sólo afecta a la portada; los originales de
+  `assets/gallery/` nunca se tocan. Con eso la portada de *15 Años* pasó de
+  900×474 a **783×412** (proporción 1,90, igual que la tarjeta) y quedó sin el marco
+  blanco; las otras seis categorías no cambian.
 
 #### Cambiar la portada de una categoría
 
@@ -339,6 +348,10 @@ petición falla, muestra un aviso y rehabilita el botón.
 - `prefers-reduced-motion` desactiva transiciones, animaciones, parallax y autoplay.
 - `prefers-contrast: more` refuerza bordes y colores de texto.
 - Contraste verificado **AA** en texto normal (≥ 4.5:1) y en texto grande (≥ 3:1).
+- El texto claro sobre la foto de las tarjetas de categoría (título, contador e ícono) no
+  depende de la foto: se apoya en el velo `--vino-noche` y en las sombras de texto. Medido
+  sobre capturas reales a 1440, 1024, 768 y 390 px, lo más bajo del sitio es **6,07:1**
+  (ícono de *Corporativos* a 768 px) y los títulos van de 7,03:1 a 15,36:1.
 - Etiquetas ARIA en todos los iconos decorativos (`aria-hidden`) y en los botones de sólo icono.
 
 ---
@@ -395,12 +408,55 @@ Reglas para tocar la paleta:
   y `--vino` superan AA (4,5:1) sobre `--marfil`, `--champagne` y `--rosa-polvo`. El texto
   claro sobre foto depende del velo `--vino-noche`: si se aclara, hay que volver a medirlo.
 - Los dos tonos de estado `--exito` y `--error` son literales, y también el verde de WhatsApp
-  y su familia, que son colores funcionales y no forman parte de la paleta decorativa.
+  y su familia y el degradé de Instagram, que son colores de marca y no forman parte de la
+  paleta decorativa.
 
 **Iconos** — sprite SVG al final de `index.html`. Cada símbolo es un `<symbol id="i-…">` y se
 usa con `<use href="#i-…">`. Ya están definidos: anillos, corona, maletín, micrófono/prensa,
 espejo de mano, birrete, diamante, cámara, brújula, WhatsApp, Instagram, check, flecha,
 chevrones, estrella, barras y cierre.
+
+**Velo de las tarjetas con foto** — cuatro variables en `.gallery-cat-card--con-medios`
+gobiernan el degradé que se apoya sobre la foto para que el título, el contador y el ícono
+se lean sin importar qué haya en la imagen:
+
+```css
+.gallery-cat-card--con-medios {
+  --velo-limpio: 38%;   /* tramo superior sin tinte: la foto se ve limpia */
+  --velo-medio: 48%;    /* acá la meseta ya es total */
+  --velo-plato: 62%;    /* opacidad de la meseta */
+  --velo-hover: 72%;    /* opacidad al apuntar o enfocar */
+}
+```
+
+El degradé es vertical (de arriba hacia abajo) y todos los colores salen de `--vino-noche`
+con `color-mix()`. La zona limpia **no es un 40 % fijo**: el bloque de texto va anclado abajo
+y arranca entre el 15 % (390 px) y el 43 % (1440 px) de la altura de la tarjeta, así que cada
+breakpoint la ajusta y el 40 % dejaba el ícono y el título sobre foto sin velar (1,3:1 medido
+en Chrome). Valores por tramo:
+
+| Ancho | `--velo-limpio` | `--velo-medio` | Zona limpia real |
+|---|---|---|---|
+| 1440 px y más | 38 % | 48 % | 38 % |
+| 1024 px | 26 % | 38 % | 26 % |
+| 768 px | 20 % | 31 % | 20 % |
+| 390 px | 10 % | 21 % | 10 % |
+
+Dos reglas más: la tarjeta ancha de *Docencia* (`.gallery-cat-card:nth-child(7)`) usa el
+mismo velo en **horizontal**, con la meseta entre el 26 % y el 74 % porque el texto va en una
+fila centrada; y por debajo de 700 px esa tarjeta vuelve al velo vertical como las demás.
+Si se aclara `--vino-noche` o se sube `--velo-plato`, hay que volver a medir el contraste:
+es el único punto del sitio donde el texto claro se apoya en la foto.
+
+**Botón flotante de Instagram** — es el `<a class="floating-ig">` de `index.html`: un círculo
+fijo abajo a la derecha, con el glifo `#i-instagram` en claro, apilado 12 px encima del de
+WhatsApp (`.floating-wa`), que no se mueve. El perfil se cambia en el `href` de ese `<a>` (va
+con `target="_blank"` y `rel="noopener noreferrer"`). El degradé es color de marca de la red, no
+de la paleta del sitio: son los cuatro tokens `--instagram-1` (amarillo), `--instagram-2`
+(magenta), `--instagram-3` (violeta) y `--instagram-4` (azul) de `:root`. El tamaño y la
+separación de la pila salen de `--fab-size`, `--fab-bottom` y `--fab-gap`; el pulso, de
+`--pulse-fab-ig` (más suave y desfasado del de WhatsApp para que no laten a la vez). Ninguno de
+los dos se oculta por código: los tapan el visor y el modal, que están por encima.
 
 **Ancho máximo** — `--container: 1200px`; **alto del header** — `--header-alto: 86px`.
 
@@ -441,8 +497,7 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
 
 **Comportamiento del sitio (navegador real, seis anchos: 1920 / 1440 / 1280 / 1024 / 768 / 390)**
 
-- 0 errores de consola y de red; 0 scroll horizontal.
-- Mosaico de galería: 4 columnas con filas `[2, 4, 1]` desde 1024 px; 2 columnas en 768 px;
+- 0 errores de consola y de red; 0 scroll horizontal.- Mosaico de galería: 4 columnas con filas `[2, 4, 1]` desde 1024 px; 2 columnas en 768 px;
   1 columna en 390 px. Ninguna tarjeta se solapa ni se sale de la grilla.
 - Las 7 categorías arrancan vacías: la tarjeta muestra *Próximamente* y el aviso
   funcional del visor entra completo en la ventana en los seis anchos.
@@ -456,6 +511,30 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
   al primer clic, tecla o swipe, flechas y swipe;
   cada tarjeta lleva su línea "Reseña verificada en …" y sin rastro de la grilla
   estática anterior.
+
+**Velo de la galería con contenido real (Chrome/CDP, capturas a 1440 / 1024 / 768 / 390 px)**
+
+Con las 6 categorías con fotos inyectadas en `assets/js/galeria-data.js`: 0 errores de
+consola, `scrollWidth` igual a `clientWidth` en los cuatro anchos y el velo arrancando
+exactamente donde se lo pidió (38 / 26 / 20 / 10 %). Contraste de los píxeles reales de
+cada captura:
+
+| Texto | Mínimo del sitio | Dónde |
+|---|---|---|
+| Ícono dorado | 6,07:1 | *Corporativos*, 768 px |
+| Título | 7,03:1 | *Exclusivo Novias*, 390 px |
+| Contador de fotos | 7,87:1 | *Exclusivo Novias*, 1440 px |
+
+El hover y el foco llevan la meseta a 0,72, como fijó el diseño, y no bajan de AA. En 390 px
+el header también se ajustó (`@media (max-width: 420px)`: marca de logo, tipografía y
+padding de botones) porque el logo más el botón de cita no entraban en 383 px de contenido
+dentro de 390 px de ventana: ahora `.site-nav` mide 358 px y no hay scroll horizontal.
+
+**Portada de 15 Años** — `scripts/generar-galeria.py` le quita el marco blanco antes de
+recortar: 900×474 → **783×412** (1,90, la proporción de la tarjeta), `.webp` derivado igual y
+`portadaW`/`portadaH` de `assets/js/galeria-data.js` actualizados. El original
+`assets/gallery/15-anos/xv-04.jpg` está intacto y las otras seis portadas no cambian al
+re-ejecutar el script.
 
 ---
 

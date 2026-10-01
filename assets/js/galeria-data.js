@@ -15,8 +15,8 @@
 window.DI_GALERIA = {
   quinceanos: {
     portada: 'assets/images/galeria/quinceanos/portada.jpg',
-    portadaW: 900,
-    portadaH: 474,
+    portadaW: 783,
+    portadaH: 412,
     items: [
       { tipo: 'foto', src: 'assets/images/galeria/quinceanos/01.jpg', thumb: 'assets/images/galeria/quinceanos/01-thumb.jpg', alt: '15 Años — foto 1', w: 900, h: 890 },
       { tipo: 'foto', src: 'assets/images/galeria/quinceanos/02.jpg', thumb: 'assets/images/galeria/quinceanos/02-thumb.jpg', alt: '15 Años — foto 2', w: 900, h: 892 },
