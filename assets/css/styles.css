@@ -1,0 +1,3073 @@
+/* =========================================================================
+   DIVINA INSPIRACIÓN — Hoja de estilos principal
+   Productora Boutique & Consultora de Eventos
+   -------------------------------------------------------------------------
+   Índice
+   01. Tokens y niveles de intensidad
+   02. Reset y base
+   03. Texturas, fondo y monograma
+   04. Tipografía y utilidades
+   05. Botones, iconos y etiquetas
+   06. Barra de lectura y skip link
+   07. Header y navegación
+   08. Menú móvil y overlay
+   09. Hero
+   10. La productora (Deborah + equipo)
+   11. Servicios y pilares
+   12. Consultoría
+   13. Galería
+   14. Lightbox
+   15. Testimonios
+   16. Contacto y formulario
+   17. Modales
+   18. Footer y FAB
+   19. Animaciones y revelado
+   20. Responsive
+   21. Preferencias de movimiento y alto contraste
+   ========================================================================= */
+
+/* =========================================================================
+   01. TOKENS Y NIVELES DE INTENSIDAD
+   ========================================================================= */
+
+:root {
+  /* Anclas de color. Son la referencia de la identidad y no se derivan:
+     el vino del footer, el dorado de los botones y el verde de WhatsApp
+     se leen de acá y el resto de la paleta sale de mezclarlos. */
+  --vino: #7c1f2d;
+  --vino-profundo: #4f1420;
+  --dorado: #c19a4b;
+  --dorado-luz: #e4cd97;
+  --whatsapp: #25d366;
+
+  /* Bases: fondos, tinta y texto. */
+  --marfil: #fdf9f4;
+  --champagne: #f6ebdc;
+  --rosa-polvo: #f3e2e0;
+  --tinta: #3b1018;
+  --texto: #5a4347;
+  --texto-suave: #7a6468;
+  --dorado-texto: #7d5a1c;
+  --rosa-antiguo: #b86b77;
+  --borde: #e8d8c8;
+
+  /* Alias de rol: el mismo dorado claro con el nombre para el que se usa. */
+  --dorado-claro: var(--dorado-luz);
+  --borde-dorado: var(--dorado-claro);
+
+  /* Derivados del vino. Oklab para mezclar en un espacio perceptual y que
+     las sombras y velos caigan cerca del negro sin volverse grises fríos. */
+  --vino-logo: color-mix(in oklab, var(--vino) 88%, var(--tinta));
+  --vino-luz: color-mix(in oklab, var(--vino) 72%, var(--marfil));
+  --sombra: color-mix(in oklab, var(--vino-profundo) 50%, var(--tinta));
+  /* Velo de los textos sobre foto: es una capa de legibilidad, no un color de
+     marca, así que va cerca del negro con tinte vino. Si se aclara, el velo deja
+     de garantizar AA contra una portada muy clara. */
+  --vino-noche: color-mix(in srgb, var(--tinta) 80%, var(--mascara));
+
+  /* Texto derivado */
+  --texto-etapa: color-mix(in oklab, var(--texto) 86%, var(--tinta));
+  --placeholder: var(--texto-suave);
+
+  /* Bordes: el tono champagne como familia única, en tres intensidades. */
+  --borde-tenue: color-mix(in srgb, var(--borde) 55%, transparent);
+  --line: color-mix(in srgb, var(--borde) 85%, transparent);
+  --line-media: var(--borde);
+  --line-dorada: color-mix(in srgb, var(--dorado) 34%, transparent);
+  --line-dorada-tenue: color-mix(in srgb, var(--dorado) 18%, transparent);
+
+  /* Estado */
+  --whatsapp-oscuro: color-mix(in srgb, var(--whatsapp) 80%, var(--tinta));
+  --whatsapp-claro: color-mix(in srgb, var(--whatsapp) 52%, var(--marfil));
+  --exito: #2f6b4f;
+  --error: #a52634;
+
+  /* Negro técnico: solo para máscaras de SVG y para la impresión. */
+  --mascara: #000;
+
+  /* Tipografía */
+  --font-titulos: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-texto: "Jost", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+
+  /* Medidas */
+  --container: 1200px;
+  --gutter: 24px;
+  --radio: 14px;
+  --radio-lg: 22px;
+  --radio-pill: 999px;
+  /* Altura del header: única fuente de verdad para el layout y los anclajes.
+     --header-h es la altura en reposo, --header-h-scrolled la altura contra el tope. */
+  --header-h: 84px;
+  --header-h-scrolled: 68px;
+
+  /* Ritmo vertical entre secciones: única fuente de verdad del espaciado.
+     Mobile (<640px) se recorta a 44px en el bloque responsive. */
+  --section-y: clamp(44px, 5.5vw, 76px);
+
+  /* Sombras */
+  --shadow-sm: 0 2px 10px rgba(76, 20, 32, 0.06);
+  --shadow-md: 0 14px 34px -18px rgba(76, 20, 32, 0.34);
+  --shadow-lg: 0 34px 70px -34px rgba(76, 20, 32, 0.42);
+
+  /* Movimiento */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 0.32s;
+  --dur-lenta: 0.6s;
+
+  /* Intensidad (valores por defecto = mínima seguridad) */
+  --glow-vino: 0;
+  --glow-oro: 0;
+  --gradiente-boton: none;
+  --textura: 0;
+  --monograma: 0;
+  --filigrana: 0;
+  --brillo-borde: 0;
+  --parallax: 0px;
+  --pulse-fab: none;
+  --resplandor-dorado: transparent;
+  --sombra-extra: 0;
+  --borde-oro-alpha: 0;
+  --degrad-separator: none;
+  --transform-hover: 0;
+  --overlay-oscuro: 0;
+}
+
+/* Nivel 1 — sutil: sin efectos ornamentales */
+html[data-intensity="sutil"] {
+  --glow-vino: 0;
+  --glow-oro: 0;
+  --gradiente-boton: none;
+  --textura: 0;
+  --monograma: 0;
+  --filigrana: 0;
+  --brillo-borde: 0;
+  --parallax: 0px;
+  --pulse-fab: none;
+  --resplandor-dorado: transparent;
+  --sombra-extra: 0;
+  --borde-oro-alpha: 0;
+  --degrad-separator: none;
+  --transform-hover: 0;
+  --overlay-oscuro: 0;
+}
+
+/* Nivel 2 — media: acentos dorados y sombras ampliadas */
+html[data-intensity="media"] {
+  --glow-vino: 0.35;
+  --glow-oro: 0.2;
+  --gradiente-boton: linear-gradient(135deg, var(--vino) 0%, var(--vino-profundo) 100%);
+  --textura: 0.02;
+  --monograma: 0;
+  --filigrana: 0.18;
+  --brillo-borde: 0.4;
+  --parallax: 6px;
+  --pulse-fab: none;
+  --resplandor-dorado: color-mix(in srgb, var(--dorado) 10%, transparent);
+  --sombra-extra: 6px;
+  --borde-oro-alpha: 0.3;
+  --degrad-separator: linear-gradient(90deg, transparent, var(--dorado), transparent);
+  --transform-hover: 1px;
+  --overlay-oscuro: 0.25;
+}
+
+/* Nivel 3 — máximo (por defecto) */
+html[data-intensity="max"] {
+  --glow-vino: 0.85;
+  --glow-oro: 0.6;
+  --gradiente-boton: linear-gradient(135deg, var(--vino) 0%, var(--vino-luz) 48%, var(--vino-profundo) 100%);
+  --textura: 0.045;
+  --monograma: 0.055;
+  --filigrana: 0.45;
+  --brillo-borde: 1;
+  --parallax: 12px;
+  --pulse-fab: pulse-wa 2.6s ease-in-out infinite;
+  --resplandor-dorado: color-mix(in srgb, var(--dorado) 18%, transparent);
+  --sombra-extra: 16px;
+  --borde-oro-alpha: 0.6;
+  --degrad-separator: linear-gradient(90deg, transparent, var(--dorado) 18%, var(--dorado-luz) 50%, var(--dorado) 82%, transparent);
+  --transform-hover: 4px;
+  --overlay-oscuro: 0.45;
+}
+
+/* =========================================================================
+   02. RESET Y BASE
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  /* Compensa el header para que ningún título de sección ancla quede tapado.
+     Se toma la altura en reposo (la mayor) para que también encaje al scrollear. */
+  scroll-padding-top: calc(var(--header-h) + 22px);
+  scroll-margin-top: calc(var(--header-h) + 22px);
+}
+
+body {
+  margin: 0;
+  background-color: var(--champagne);
+  color: var(--texto);
+  font-family: var(--font-texto);
+  font-size: 17px;
+  font-weight: 300;
+  line-height: 1.72;
+  letter-spacing: 0.01em;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body.is-locked {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-titulos);
+  color: var(--vino-profundo);
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 0.5em;
+  letter-spacing: 0.005em;
+}
+
+h1 {
+  font-size: clamp(2.1rem, 4.6vw, 3.5rem);
+}
+
+h2 {
+  font-size: clamp(1.75rem, 3.4vw, 2.6rem);
+}
+
+h3 {
+  font-size: clamp(1.1rem, 1.6vw, 1.32rem);
+}
+
+h4 {
+  font-size: 1.05rem;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: var(--vino);
+  text-decoration-color: var(--line-dorada);
+  text-underline-offset: 3px;
+  transition: color var(--dur) var(--ease);
+}
+
+a:hover {
+  color: var(--vino-luz);
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+strong {
+  font-weight: 500;
+  color: var(--vino-profundo);
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--dorado);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--vino);
+  color: var(--champagne);
+}
+
+/* =========================================================================
+   03. TEXTURAS, FONDO Y MONOGRAMA
+   ========================================================================= */
+
+/* Grano fino sobre todo el documento */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: var(--textura);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23g)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+}
+
+/* Monograma DI gigante al fondo */
+body::after {
+  content: "DI";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-titulos);
+  font-style: italic;
+  font-weight: 700;
+  font-size: clamp(22rem, 46vw, 40rem);
+  line-height: 0.8;
+  color: var(--vino);
+  opacity: var(--monograma);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: -0.04em;
+  background: linear-gradient(160deg, var(--dorado) 0%, var(--vino) 55%, var(--vino-profundo) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+main,
+.site-header,
+.site-footer,
+.floating-wa,
+.reading-progress,
+.modal-overlay,
+.lightbox {
+  position: relative;
+  z-index: 2;
+}
+
+/* =========================================================================
+   04. TIPOGRAFÍA Y UTILIDADES
+   ========================================================================= */
+
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+
+/* Ritmo óptico: la sección que sigue a otra recorta su relleno superior unos
+   píxeles, así la suma padding-bottom + padding-top no duplica la banda objetivo. */
+.section + .section,
+.hero + .section {
+  padding-top: calc(var(--section-y) - 8px);
+}
+
+/* Par que continúa el mismo fondo: una sola respiración, sin duplicar padding.
+   Se aplica al par servicios -> galería -> testimonios (banda crema continua).
+   Doble clase a propósito: gana contra `.section + .section` (misma especificidad). */
+.section.section--continua {
+  padding-top: clamp(34px, 3.4vw, 52px);
+}
+
+/* El primer hijo de cada bloque no suma margen superior, y el último no suma
+   margen inferior. Ojo: sólo se neutraliza el lado que corresponde, para no
+   borrar la separación vertical interna (p. ej. los 44px entre pilares). */
+.section > .container > :first-child,
+.services > .container > :first-child,
+.contact > .container > :first-child,
+.reviews-section > .container > :first-child {
+  margin-top: 0;
+}
+
+.section > .container > :last-child,
+.services > .container > :last-child,
+.contact > .container > :last-child,
+.reviews-section > .container > :last-child {
+  margin-bottom: 0;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: var(--font-texto);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+  margin-bottom: 14px;
+}
+
+.eyebrow::after {
+  content: "";
+  display: block;
+  width: 46px;
+  height: 1px;
+  margin-top: 10px;
+  background: var(--degrad-separator);
+  opacity: var(--filigrana);
+}
+
+.section-head {
+  max-width: 640px;
+  margin-bottom: clamp(24px, 3vw, 36px);
+}
+
+.section-head p {
+  color: var(--texto-suave);
+  font-size: 1.02rem;
+  margin-bottom: 0;
+}
+
+/* Separador decorativo: se apoya sobre el borde entre secciones con
+   position:absolute y altura 0, así nunca suma altura ni espacio vertical. */
+.separator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: var(--degrad-separator);
+  opacity: var(--filigrana);
+  pointer-events: none;
+}
+
+.separator::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  background: var(--champagne);
+  border: 1px solid var(--dorado);
+  transform: translateY(-50%) rotate(45deg);
+  opacity: calc(var(--filigrana) + 0.3);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  z-index: 200;
+  padding: 12px 22px;
+  background: var(--vino);
+  color: var(--champagne);
+  border-radius: 0 0 var(--radio) var(--radio);
+  font-size: 0.9rem;
+  letter-spacing: 0.04em;
+  transition: top 0.2s var(--ease);
+}
+
+.skip-link:focus {
+  top: 0;
+  color: var(--champagne);
+}
+
+/* =========================================================================
+   05. BOTONES, ICONOS Y ETIQUETAS
+   ========================================================================= */
+
+.icon {
+  width: 1em;
+  height: 1em;
+  flex: none;
+  fill: currentColor;
+}
+
+.icon.stroke {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 26px;
+  border-radius: var(--radio-pill);
+  font-family: var(--font-texto);
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid transparent;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+  transform: translateY(calc(var(--transform-hover) * -1));
+}
+
+.btn .icon {
+  font-size: 1.1em;
+}
+
+/* Barrido dorado en nivel máximo */
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--dorado-claro) 55%, transparent) 50%, transparent 80%);
+  transform: translateX(-120%);
+  opacity: 0;
+}
+
+html[data-intensity="max"] .btn:hover::after {
+  animation: sheen 0.9s var(--ease) forwards;
+}
+
+.btn-primary {
+  background-image: var(--gradiente-boton);
+  background-color: var(--vino);
+  color: var(--champagne);
+  box-shadow: var(--shadow-md), 0 0 calc(22px * var(--glow-vino)) color-mix(in srgb, var(--dorado) 28%, transparent);
+}
+
+.btn-primary:hover {
+  background-color: var(--vino-profundo);
+  color: var(--champagne);
+  box-shadow: var(--shadow-lg), 0 0 calc(30px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 42%, transparent);
+}
+
+.btn-gold {
+  background-image: linear-gradient(135deg, var(--dorado-luz) 0%, var(--dorado) 100%);
+  background-color: var(--dorado);
+  color: var(--vino-profundo);
+  box-shadow: var(--shadow-md), 0 0 calc(24px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 40%, transparent);
+}
+
+.btn-gold:hover {
+  background-image: linear-gradient(135deg, var(--dorado) 0%, var(--dorado-luz) 100%);
+  color: var(--vino-profundo);
+  box-shadow: var(--shadow-lg), 0 0 calc(32px * var(--glow-oro)) color-mix(in srgb, var(--dorado-claro) 55%, transparent);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border-color: var(--line-media);
+  color: var(--vino);
+}
+
+.btn-outline:hover {
+  border-color: var(--vino);
+  background-color: color-mix(in srgb, var(--rosa-polvo) 64%, transparent);
+  color: var(--vino-profundo);
+}
+
+.btn-ghost {
+  background-color: transparent;
+  color: var(--vino);
+  padding-inline: 12px;
+}
+
+.btn-ghost:hover {
+  color: var(--vino-luz);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn[disabled] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* =========================================================================
+   06. BARRA DE LECTURA Y SKIP LINK
+   ========================================================================= */
+
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 120;
+  background: transparent;
+  pointer-events: none;
+}
+
+.reading-progress__bar {
+  height: 100%;
+  width: 0;
+  background-image: linear-gradient(90deg, var(--vino) 0%, var(--dorado) 60%, var(--dorado-luz) 100%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--dorado) 60%, transparent);
+  transition: width 0.1s linear;
+}
+
+/* =========================================================================
+   07. HEADER Y NAVEGACIÓN
+   ========================================================================= */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: color-mix(in srgb, var(--champagne) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--borde-tenue);
+  transition: box-shadow var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+
+/* Línea inferior con degradé dorado, sólo visible al hacer scroll. */
+.site-header::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--dorado) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.site-header.is-scrolled {
+  box-shadow: var(--shadow-md);
+  background: color-mix(in srgb, var(--champagne) 97%, transparent);
+}
+
+.site-header.is-scrolled::after {
+  opacity: 1;
+}
+
+/* Contenedor propio del header: más ancho que el del cuerpo y con gutter fluido. */
+.header-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: clamp(16px, 3vw, 40px);
+}
+
+/* Una sola fila: [marca] [menú] [CTA] */
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.8vw, 30px);
+  min-height: var(--header-h);
+  transition: min-height var(--dur) var(--ease);
+}
+
+.site-header.is-scrolled .site-nav {
+  min-height: var(--header-h-scrolled);
+}
+
+/* La marca y el CTA nunca se comprimen ni se parten. */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 13px;
+  flex: 0 0 auto;
+  text-decoration: none;
+  color: var(--vino);
+}
+
+.logo-mark {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-titulos);
+  font-style: italic;
+  font-size: 1.16rem;
+  color: var(--dorado-luz);
+  background: linear-gradient(140deg, var(--vino-logo) 0%, var(--vino-profundo) 100%);
+  border: 1px solid var(--line-dorada);
+  box-shadow: 0 0 calc(20px * var(--glow-vino)) color-mix(in srgb, var(--dorado) 30%, transparent);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.logo:hover .logo-mark {
+  transform: rotate(-4deg) scale(1.04);
+  box-shadow: 0 0 calc(26px * var(--glow-oro)) color-mix(in srgb, var(--dorado-claro) 50%, transparent);
+}
+
+.logo-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.logo-text .top {
+  font-family: var(--font-titulos);
+  font-size: 1.38rem;
+  font-weight: 600;
+  color: var(--vino-logo);
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.logo-text .bottom {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+  white-space: nowrap;
+}
+
+/* El menú reparte el espacio sobrante; los links nunca parten en dos renglones. */
+.nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: clamp(14px, 1.6vw, 28px);
+}
+
+.nav-links a {
+  position: relative;
+  display: block;
+  font-size: 0.94rem;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  color: var(--texto);
+  text-decoration: none;
+  white-space: nowrap;
+  padding-block: 6px;
+}
+
+.nav-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--degrad-separator);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--dur) var(--ease);
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="true"] {
+  color: var(--vino);
+}
+
+.nav-links a:hover::after,
+.nav-links a[aria-current="true"]::after {
+  transform: scaleX(1);
+}
+
+.nav-cta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 0 auto;
+}
+
+.nav-cta .btn {
+  flex: 0 0 auto;
+  border-radius: var(--radio-pill);
+  padding: 11px 20px;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--sombra) 70%, transparent);
+}
+
+.nav-cta .btn span {
+  white-space: nowrap;
+}
+
+.burger {
+  display: none;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--vino);
+  font-size: 1.2rem;
+  background: transparent;
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.burger:hover {
+  background: color-mix(in srgb, var(--vino) 6%, transparent);
+  border-color: var(--line-media);
+}
+
+/* =========================================================================
+   08. MENÚ MÓVIL Y OVERLAY
+   ========================================================================= */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  background: color-mix(in srgb, var(--tinta) calc((0.25 + var(--overlay-oscuro) * 100%), transparent));
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur) var(--ease), visibility var(--dur);
+}
+
+.overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobile-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 140;
+  width: min(360px, 86vw);
+  height: 100dvh;
+  padding: 22px 26px 32px;
+  display: flex;
+  flex-direction: column;
+  background: var(--marfil);
+  border-left: 1px solid var(--borde-tenue);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  visibility: hidden;
+  transition: transform var(--dur-lenta) var(--ease-out), visibility var(--dur-lenta);
+  overflow-y: auto;
+}
+
+.mobile-menu.is-open {
+  transform: translateX(0);
+  visibility: visible;
+}
+
+.mobile-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 18px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--borde-tenue);
+}
+
+.mobile-close {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  color: var(--vino);
+  font-size: 1.1rem;
+}
+
+.mobile-menu__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: auto;
+  padding-block: 10px 20px;
+}
+
+.mobile-menu__list a {
+  display: block;
+  padding: 13px 4px;
+  font-family: var(--font-titulos);
+  font-size: 1.18rem;
+  color: var(--vino-profundo);
+  text-decoration: none;
+  border-bottom: 1px solid var(--borde-tenue);
+  transition: padding-left var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.mobile-menu__list a:hover {
+  padding-left: 10px;
+  color: var(--vino);
+}
+
+.mobile-menu__foot {
+  padding-top: 22px;
+  border-top: 1px solid var(--borde-tenue);
+  display: grid;
+  gap: 12px;
+}
+
+.mobile-menu__foot p {
+  font-size: 0.78rem;
+  color: var(--texto-suave);
+  margin: 0;
+}
+
+/* =========================================================================
+   09. HERO
+   ========================================================================= */
+
+.hero {
+  position: relative;
+  padding-block: clamp(52px, 6.5vw, 92px) var(--section-y);
+  overflow: hidden;
+  background:
+    radial-gradient(60% 46% at 78% 12%, color-mix(in srgb, var(--dorado) calc((0.2 * var(--glow-oro) * 100%), transparent)) 0%, transparent 68%),
+    radial-gradient(52% 44% at 8% 84%, color-mix(in srgb, var(--vino) calc((0.1 * var(--glow-vino) * 100%), transparent)) 0%, transparent 70%),
+    linear-gradient(180deg, var(--champagne) 0%, var(--marfil) 55%, var(--champagne) 100%);
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--degrad-separator);
+  opacity: var(--filigrana);
+}
+
+.hero-content {
+  max-width: 860px;
+  text-align: left;
+}
+
+.hero h1 {
+  margin-bottom: 22px;
+  text-wrap: balance;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--vino);
+  background: linear-gradient(100deg, var(--vino) 0%, var(--dorado-texto) 45%, var(--vino-luz) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.lead {
+  font-size: clamp(1.02rem, 1.5vw, 1.16rem);
+  color: var(--texto-suave);
+  max-width: 62ch;
+  margin-bottom: 32px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: clamp(40px, 6vw, 64px);
+}
+
+.hero-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: clamp(18px, 3vw, 40px);
+  padding-top: 30px;
+  border-top: 1px solid var(--borde-tenue);
+  max-width: 760px;
+}
+
+.stat b {
+  display: block;
+  font-family: var(--font-titulos);
+  font-size: clamp(1.9rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--vino);
+  background: linear-gradient(140deg, var(--vino) 0%, var(--dorado-texto) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.stat span {
+  display: block;
+  margin-top: 9px;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--texto-suave);
+}
+
+/* =========================================================================
+   10. LA PRODUCTORA
+   ========================================================================= */
+
+.about {
+  background:
+    linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--champagne) 0%, transparent) 100%),
+    var(--marfil);
+  border-top: 1px solid var(--borde-tenue);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(32px, 5vw, 66px);
+  align-items: center;
+}
+
+.about-grid + .about-grid {
+  margin-top: clamp(46px, 6vw, 74px);
+  padding-top: clamp(40px, 5vw, 60px);
+  border-top: 1px solid var(--borde-tenue);
+}
+
+.about-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radio-lg);
+  overflow: hidden;
+  background-color: var(--champagne);
+  background-size: cover;
+  background-position: center 18%;
+  border: 1px solid var(--line-dorada-tenue);
+  box-shadow: var(--shadow-lg);
+}
+
+.about-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(200deg, transparent 52%, color-mix(in srgb, var(--vino-profundo) 50%, transparent) 100%);
+  opacity: var(--glow-vino);
+  transition: opacity var(--dur-lenta) var(--ease);
+}
+
+.about-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+}
+
+.about-photo .frame-label {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  z-index: 2;
+  padding: 8px 16px;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--vino-profundo) 86%, transparent);
+  color: var(--dorado-luz);
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  backdrop-filter: blur(4px);
+}
+
+.about-text h2 {
+  margin-bottom: 8px;
+}
+
+.role-tag {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 6px 14px;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--dorado) 12%, transparent);
+  border: 1px solid var(--line-dorada);
+  color: var(--dorado-texto);
+  font-size: 0.76rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.credential-list {
+  display: grid;
+  gap: 4px;
+}
+
+.credential-item {
+  padding: 16px 0 16px 20px;
+  border-left: 2px solid var(--line-dorada);
+  transition: border-color var(--dur) var(--ease), padding-left var(--dur) var(--ease);
+}
+
+.credential-item:hover {
+  border-left-color: var(--dorado);
+  padding-left: 24px;
+}
+
+.credential-item b {
+  display: block;
+  font-family: var(--font-titulos);
+  font-size: 1.06rem;
+  font-weight: 600;
+  color: var(--vino-profundo);
+  margin-bottom: 3px;
+}
+
+.credential-item span {
+  font-size: 0.93rem;
+  color: var(--texto-suave);
+  line-height: 1.6;
+}
+
+/* =========================================================================
+   11. SERVICIOS Y PILARES
+   ========================================================================= */
+
+.services {
+  background: var(--champagne);
+}
+
+/* Separación entre pilares dentro de Áreas de Especialidad: 44px, nunca más. */
+.pilar + .pilar,
+.services-grid + .pilar {
+  margin-top: 44px;
+}
+
+.pilar-title {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 24px;
+  font-family: var(--font-titulos);
+  font-size: clamp(1.15rem, 2vw, 1.45rem);
+  font-weight: 600;
+  color: var(--vino-profundo);
+}
+
+.pilar-title::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--degrad-separator);
+  opacity: var(--filigrana);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  align-items: stretch;
+}
+
+.service-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(22px, 2.4vw, 30px);
+  border-radius: var(--radio);
+  background: var(--marfil);
+  border: 1px solid var(--borde-tenue);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.service-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, var(--dorado) 0%, transparent 42%);
+  -webkit-mask: linear-gradient(var(--mascara) 0 0) content-box, linear-gradient(var(--mascara) 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(var(--mascara) 0 0) content-box, linear-gradient(var(--mascara) 0 0);
+  mask-composite: exclude;
+  opacity: var(--borde-oro-alpha);
+  pointer-events: none;
+}
+
+.service-card:hover {
+  transform: translateY(calc(-1 * var(--transform-hover)));
+  border-color: var(--line-dorada);
+  box-shadow: var(--shadow-lg), 0 calc(20px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 18%, transparent);
+}
+
+.service-card h3 {
+  margin-bottom: 8px;
+}
+
+.service-card p {
+  font-size: 0.93rem;
+  line-height: 1.66;
+  color: var(--texto-suave);
+}
+
+.service-icon {
+  width: 54px;
+  height: 54px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 1.5rem;
+  color: var(--vino);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--dorado) 20%, transparent) 0%, color-mix(in srgb, var(--rosa-polvo) 62%, transparent) 100%);
+  border: 1px solid color-mix(in srgb, var(--rosa-antiguo) 45%, transparent);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.service-icon img {
+  height: 30px;
+  width: auto;
+}
+
+.service-card:hover .service-icon {
+  transform: translateY(-2px) rotate(-3deg);
+  box-shadow: 0 0 calc(20px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 35%, transparent);
+}
+
+/* La etiqueta siempre al pie: base de la corrección de alineación */
+.service-tag {
+  margin-top: auto;
+  align-self: flex-start;
+  padding: 6px 13px;
+  border-radius: var(--radio-pill);
+  background: color-mix(in srgb, var(--rosa-polvo) 58%, transparent);
+  border: 1px solid var(--borde-tenue);
+  color: var(--vino);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+/* Tarjeta destacada: ocupa dos columnas */
+.service-card.is-featured {
+  grid-column: span 2;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  /* La tarjeta se estira a la altura de la fila: alinea la primera línea arriba
+     y empuja la línea de la etiqueta al pie, igual que las tarjetas de una columna. */
+  align-content: space-between;
+  gap: clamp(20px, 3vw, 34px);
+  /* Padding vertical igual al de las tarjetas simples: así la etiqueta comparte
+     la misma línea de base que sus vecinas. El extra se aplica solo en horizontal. */
+  padding-block: clamp(22px, 2.4vw, 30px);
+  padding-inline: clamp(26px, 3vw, 38px);
+  background:
+    radial-gradient(90% 120% at 100% 0%, color-mix(in srgb, var(--dorado) 18%, transparent) 0%, transparent 62%),
+    var(--marfil);
+}
+
+.service-card.is-featured .service-icon {
+  width: 76px;
+  height: 76px;
+  font-size: 2rem;
+}
+
+.service-card.is-featured .service-icon img {
+  height: 40px;
+}
+
+.service-card.is-featured h3 {
+  font-size: clamp(1.3rem, 2.1vw, 1.7rem);
+}
+
+.service-card.is-featured p {
+  font-size: 0.98rem;
+  max-width: 52ch;
+}
+
+.service-card.is-featured .service-tag {
+  margin-top: 0;
+  /* Fuerza su propia línea al ancho completo para que quede apoyada en el pie. */
+  flex: 0 0 100%;
+}
+
+.featured-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--vino);
+  letter-spacing: 0.02em;
+  transition: gap var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.service-card.is-featured:hover .featured-cta {
+  gap: 14px;
+  color: var(--vino-luz);
+}
+
+button.service-card {
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  color: inherit;
+}
+
+/* =========================================================================
+   12. CONSULTORÍA
+   ========================================================================= */
+
+.consultoria-block {
+  padding: clamp(26px, 3.4vw, 44px);
+  border-radius: var(--radio-lg);
+  background: var(--marfil);
+  border: 1px solid var(--borde-tenue);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.consultoria-block::before {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 3px;
+  background: var(--degrad-separator);
+  opacity: calc(var(--filigrana) + 0.35);
+}
+
+.consultoria-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(26px, 3.4vw, 46px);
+  /* stretch: ambas columnas miden lo mismo, así la tarjeta vino no deja hueco debajo. */
+  align-items: stretch;
+}
+
+.consultoria-info h3 {
+  font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+  margin-bottom: 14px;
+}
+
+.etapa-lead {
+  font-weight: 500;
+  color: var(--vino);
+  margin-bottom: 14px;
+}
+
+.etapas-list {
+  display: grid;
+  gap: 12px;
+}
+
+.etapa-item {
+  display: grid;
+  gap: 4px;
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--champagne) 75%, transparent);
+  border: 1px solid var(--borde-tenue);
+  position: relative;
+  padding-left: 46px;
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.etapa-item::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 22px;
+  width: 11px;
+  height: 11px;
+  border: 1px solid var(--dorado);
+  transform: rotate(45deg);
+  background: var(--champagne);
+}
+
+.etapa-item:hover {
+  border-color: var(--line-dorada);
+  transform: translateX(calc(var(--transform-hover) * 0.5));
+}
+
+.etapa-item b {
+  font-family: var(--font-titulos);
+  font-size: 1.04rem;
+  color: var(--vino-profundo);
+}
+
+/* Texto de las etapas: gris cálido oscuro (>= 4.5:1 sobre su fondo) y peso 400. */
+.etapa-item span {
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--texto-etapa);
+}
+
+.policy-box {
+  display: flex;
+  flex-direction: column;
+  /* space-between reparte la altura sobrante entre todos los huecos, en vez de
+     acumularla en un único espacio muerto al final. El botón queda en el pie. */
+  justify-content: space-between;
+  gap: clamp(14px, 1.6vw, 20px);
+  height: 100%;
+  padding: clamp(30px, 3.2vw, 40px);
+  /* El padre directo es .consultoria-grid (sin radio), así que `inherit` daba 0.
+     Se usa el radio del bloque contenedor para que el círculo quede recortado. */
+  border-radius: var(--radio-lg);
+  color: var(--champagne);
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in srgb, var(--dorado) 30%, transparent) 0%, transparent 60%),
+    linear-gradient(160deg, var(--vino) 0%, var(--vino-profundo) 100%);
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  /* Recorta el círculo decorativo dentro de la tarjeta. */
+  overflow: hidden;
+}
+
+.policy-box::after {
+  content: "";
+  position: absolute;
+  right: -60px;
+  bottom: -70px;
+  width: 220px;
+  height: 220px;
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 28%, transparent);
+  border-radius: 50%;
+  opacity: var(--filigrana);
+  pointer-events: none;
+}
+
+.policy-box h4 {
+  font-size: 1.22rem;
+  line-height: 1.32;
+  color: var(--marfil);
+  margin: 0;
+}
+
+.policy-box__lead {
+  font-size: 0.94rem;
+  font-weight: 500;
+  color: var(--dorado-luz);
+  margin: 0;
+}
+
+.policy-box p {
+  font-size: 0.93rem;
+  color: color-mix(in srgb, var(--champagne) 90%, transparent);
+  margin: 0;
+}
+
+.policy-list {
+  display: grid;
+  gap: 9px;
+  margin: 0;
+  font-size: 0.9rem;
+  color: color-mix(in srgb, var(--champagne) 92%, transparent);
+}
+
+.policy-list li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.policy-list .icon {
+  font-size: 1.05rem;
+  color: var(--dorado-luz);
+  margin-top: 0.28em;
+}
+
+.policy-box .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Énfasis sobre fondos oscuros: la regla global strong{color:vino} los dejaba
+   invisibles, así que se repinta en crema / dorado claro en cada superficie oscura. */
+.policy-box strong,
+.policy-box b,
+.policy-box em,
+.site-footer strong,
+.site-footer b,
+.site-footer em {
+  color: var(--dorado-luz);
+  font-weight: 600;
+}
+
+/* =========================================================================
+   13. GALERÍA
+   ========================================================================= */
+
+.gallery-section {
+  background: var(--champagne);
+  border-top: 1px solid var(--borde-tenue);
+}
+
+/* El subtítulo de la galería es más largo que los de las otras secciones: con el
+   límite de 640px del encabezado se partía en dos renglones a 1440px. Se le saca
+   ese tope para que ocupe el ancho del contenedor y, desde 900px, se mantiene en
+   un solo renglón. Por debajo vuelve a envolver con balance y sin desbordar. */
+.gallery-section .section-head {
+  max-width: none;
+}
+
+@media (min-width: 900px) {
+  .gallery-section .section-head p {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 899.98px) {
+  .gallery-section .section-head p {
+    text-wrap: balance;
+  }
+}
+
+/* Mosaico editorial premium: 4 columnas.
+   Fila 1 → 2 tarjetas anchas (span 2) · Fila 2 → 4 tarjetas (span 1) · Fila 3 → 1 panorámica (span 4).
+   El orden viene del objeto GALERIA: el layout se resuelve solo por posición. */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.gallery-cat-card {
+  --card-bg: var(--marfil);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 26px 22px;
+  border-radius: var(--radio);
+  background: var(--card-bg);
+  border: 1px solid var(--line-dorada);
+  color: var(--vino);
+  text-align: center;
+  overflow: hidden;
+  isolation: isolate;
+  min-height: 260px;
+  transition: transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
+}
+
+.gallery-cat-card:nth-child(1),
+.gallery-cat-card:nth-child(2) {
+  grid-column: span 2;
+  min-height: 300px;
+}
+
+.gallery-cat-card:nth-child(3),
+.gallery-cat-card:nth-child(4),
+.gallery-cat-card:nth-child(5),
+.gallery-cat-card:nth-child(6) {
+  grid-column: span 1;
+  min-height: 260px;
+}
+
+/* Fila panorámica: contenido en horizontal, 4 columnas de ancho. */
+.gallery-cat-card:nth-child(7) {
+  grid-column: span 4;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 22px;
+  min-height: 150px;
+  padding-inline: 34px;
+  text-align: left;
+}
+
+.gallery-cat-card:hover,
+.gallery-cat-card:focus-visible {
+  transform: translateY(calc(-1 * var(--transform-hover)));
+  border-color: var(--dorado);
+  box-shadow: var(--shadow-lg), 0 calc(18px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 22%, transparent);
+}
+
+/* ---------- Estado CON medios ---------- */
+.gallery-cat-card__media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.gallery-cat-card__media picture {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gallery-cat-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* El recorte se ancla arriba: en fotos de evento las caras están en el tercio
+     superior y `center` las cortaba. */
+  object-position: 50% 30%;
+  display: block;
+  transition: transform 0.9s var(--ease-out);
+}
+
+.gallery-cat-card:hover .gallery-cat-card__media img,
+.gallery-cat-card:focus-visible .gallery-cat-card__media img {
+  transform: scale(1.06);
+}
+
+/* Velo inferior para que el título y el contador se lean sobre la foto.
+   Sube a 0,88 de opacidad en el 44% de la altura porque el bloque de texto
+   arranca más arriba de lo que sugería el degradé anterior: medido sobre el
+   navegador, el título queda en 11:1 y el contador dorado en 5,4:1 incluso en
+   la tarjeta más baja, y el tercio superior de la foto queda limpio. */
+.gallery-cat-card--con-medios::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 55%, transparent) 30%, color-mix(in srgb, var(--vino-noche) 88%, transparent) 44%, color-mix(in srgb, var(--vino-noche) 94%, transparent) 100%);
+  pointer-events: none;
+}
+
+/* La banda ancha (docencia) lleva el texto en una fila centrada, así que el velo
+   tiene que ser horizontal: una meseta opaca del 27% al 73% cubre el bloque de
+   texto en todos los anchos de la banda (768 px a 1440 px) y deja ver la foto en
+   los bordes. Contra el peor caso (foto blanca pura) el contador dorado queda en
+   7,6:1 y el título crema en 11,5:1. */
+.gallery-cat-card:nth-child(7).gallery-cat-card--con-medios::after {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--vino-noche) 12%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 86%, transparent) 27%, color-mix(in srgb, var(--vino-noche) 86%, transparent) 73%, color-mix(in srgb, var(--vino-noche) 62%, transparent) 84%, color-mix(in srgb, var(--vino-noche) 12%, transparent) 100%);
+}
+
+.gallery-cat-card--con-medios {
+  justify-content: flex-end;
+  align-items: flex-start;
+  text-align: left;
+  border-color: color-mix(in srgb, var(--dorado) 34%, transparent);
+}
+
+/* El icono no tiene tamaño propio en el estado con medios, así que el navegador
+   lo pintaba al tamaño intrínseco del SVG (300px) y en la fila panorámica
+   flexbox lo estiraba al 40% del ancho, empujando el texto contra el borde.
+   Se le fija un tamaño acorde al de las tarjetas vacías. */
+.gallery-cat-card--con-medios .cat-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  color: var(--dorado-luz);
+  stroke: currentColor;
+  fill: none;
+}
+
+.gallery-cat-card:nth-child(7) .cat-icon {
+  width: 46px;
+  height: 46px;
+}
+
+/* Sobre foto el velo oscuro es el fondo, así que el texto va en tono claro.
+   En las tarjetas sin medios el fondo es marfil/champagne y un tono claro ahí
+   no se leería: por eso .cat-count nace oscuro y solo se aclara en este bloque. */
+.gallery-cat-card--con-medios .gallery-caption,
+.gallery-cat-card--con-medios .cat-line,
+.gallery-cat-card--con-medios .cat-count,
+.gallery-cat-card--con-medios .cat-cta {
+  color: var(--champagne);
+}
+
+/* Sombra de texto como piso de seguridad: aunque alguien reemplace la portada por
+   una muy clara, o el navegador difumine el velo, el texto sigue siendo legible.
+   Usa el vino profundo de la paleta, así que no introduce ningún color nuevo. */
+.gallery-cat-card--con-medios .gallery-caption {
+  text-shadow: 0 1px 12px color-mix(in srgb, var(--vino-noche) 60%, transparent);
+}
+
+.gallery-cat-card--con-medios .cat-count {
+  text-shadow: 0 1px 10px color-mix(in srgb, var(--vino-noche) 75%, transparent);
+}
+
+/* ---------- Estado SIN medios ---------- */
+.gallery-cat-card--vacia {
+  --card-bg: linear-gradient(180deg, var(--marfil) 0%, var(--champagne) 100%);
+  border-style: dashed;
+  border-color: var(--borde-dorado);
+}
+
+.gallery-cat-card--vacia .cat-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--dorado-texto);
+  stroke: currentColor;
+  fill: none;
+  transition: transform var(--dur) var(--ease);
+}
+
+.gallery-cat-card--vacia:hover .cat-icon {
+  transform: scale(1.08);
+}
+
+.cat-line {
+  width: 34px;
+  height: 1px;
+  background: var(--dorado);
+  opacity: 0.7;
+  flex: 0 0 auto;
+}
+
+.gallery-caption {
+  font-family: var(--font-titulos);
+  font-size: 1.12rem;
+  color: var(--vino-profundo);
+}
+
+.gallery-cat-card:nth-child(7) .gallery-caption {
+  font-size: 1.28rem;
+}
+
+/* Contador de medios (fotos + videos) */
+.cat-count {
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+}
+
+/* Píldora de estado sin medios */
+.cat-pill {
+  display: inline-block;
+  padding: 5px 13px;
+  border-radius: var(--radio-pill);
+  border: 1px solid var(--dorado-luz);
+  background: color-mix(in srgb, var(--dorado) 12%, transparent);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+}
+
+.cat-cta {
+  font-size: 0.74rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+}
+
+.gallery-cat-card--vacia .cat-cta {
+  display: none;
+}
+
+/* =========================================================================
+   14. VISOR DE GALERÍA (lightbox)
+   ========================================================================= */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 14px;
+  padding: 22px clamp(14px, 3vw, 40px);
+  color: var(--champagne);
+  background:
+    radial-gradient(120% 100% at 50% 0%, color-mix(in srgb, var(--vino) 50%, transparent) 0%, transparent 62%),
+    color-mix(in srgb, var(--vino-noche) calc((0.9 + var(--overlay-oscuro) * 0.04) * 100%), transparent);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  /* `visibility` cambia de golpe al abrir y recién al terminar el desvanecido
+     al cerrar: si se transiciona, el overlay queda no-focusable durante los
+     primeros frames y el foco trampa nunca entra. */
+  transition: opacity var(--dur) var(--ease), visibility 0s linear var(--dur);
+}
+
+.lightbox.is-open {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--dur) var(--ease), visibility 0s linear 0s;
+}
+
+/* ---------- Barra superior: título + contador + cerrar ---------- */
+.lightbox__bar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 0;
+}
+
+.lightbox__title {
+  flex: 1 1 auto;
+  font-family: var(--font-titulos);
+  font-style: italic;
+  font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+  color: var(--champagne);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lightbox__counter {
+  flex: 0 0 auto;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: var(--dorado-luz);
+  font-variant-numeric: tabular-nums;
+}
+
+.lightbox__close {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--champagne);
+  background: color-mix(in srgb, var(--sombra) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 42%, transparent);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+
+.lightbox__close:hover,
+.lightbox__close:focus-visible {
+  background: var(--dorado);
+  border-color: var(--dorado);
+  color: var(--vino-profundo);
+}
+
+/* ---------- Escenario ---------- */
+.lightbox__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+.lightbox__figure {
+  margin: 0;
+  max-width: min(1180px, 100%);
+  max-height: 100%;
+  display: grid;
+  place-items: center;
+  min-height: 0;
+}
+
+/* Transición de cambio de medio: salida con fade + escala. */
+.lightbox__figure.is-cambiando {
+  opacity: 0;
+  transform: scale(0.975);
+}
+
+.lightbox__figure img,
+.lightbox__video {
+  max-width: 100%;
+  max-height: calc(100vh - 250px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 28%, transparent);
+  box-shadow: 0 34px 80px color-mix(in srgb, var(--vino-noche) 55%, transparent);
+  background: var(--mascara);
+}
+
+.lightbox__figure,
+.lightbox__figure img,
+.lightbox__video {
+  transition: opacity 0.32s var(--ease), transform 0.32s var(--ease);
+}
+
+.lightbox__video[hidden],
+.lightbox__figure img[hidden] {
+  display: none;
+}
+
+/* ---------- Flechas circulares ---------- */
+.lightbox__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--champagne);
+  background: color-mix(in srgb, var(--sombra) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 42%, transparent);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.lightbox__nav:hover,
+.lightbox__nav:focus-visible {
+  background: var(--dorado);
+  border-color: var(--dorado);
+  color: var(--vino-profundo);
+}
+
+.lightbox__nav[hidden] {
+  display: none;
+}
+
+.lightbox__nav--prev {
+  left: 0;
+}
+
+.lightbox__nav--next {
+  right: 0;
+}
+
+/* ---------- Tira de miniaturas ---------- */
+.lightbox__thumbs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 66px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.lightbox__thumbs::-webkit-scrollbar {
+  display: none;
+}
+
+.lightbox__thumbs:empty {
+  min-height: 0;
+}
+
+.lightbox__thumb {
+  position: relative;
+  flex: 0 0 auto;
+  width: 84px;
+  height: 58px;
+  padding: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--sombra) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 22%, transparent);
+  opacity: 0.55;
+  transition: opacity var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.lightbox__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.lightbox__thumb:hover,
+.lightbox__thumb:focus-visible {
+  opacity: 0.9;
+}
+
+.lightbox__thumb.is-active {
+  opacity: 1;
+  border-color: var(--dorado);
+  box-shadow: 0 0 0 1px var(--dorado);
+}
+
+/* Insignia de play en la miniatura de video */
+.lightbox__thumb-play {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: color-mix(in srgb, var(--vino-noche) 42%, transparent);
+  color: var(--dorado-luz);
+  pointer-events: none;
+}
+
+.lightbox__thumb-play svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: currentColor;
+}
+
+/* ---------- Estado vacío dentro del visor ---------- */
+.lightbox__empty {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.lightbox__empty[hidden] {
+  display: none;
+}
+
+.lightbox__empty-inner {
+  display: grid;
+  justify-items: center;
+  gap: 20px;
+  max-width: 480px;
+  padding: 46px 34px;
+  border-radius: var(--radio-lg);
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 26%, transparent);
+  background: color-mix(in srgb, var(--sombra) 42%, transparent);
+}
+
+.lightbox__empty-icon {
+  width: 62px;
+  height: 62px;
+  color: var(--dorado-luz);
+  stroke: currentColor;
+  fill: none;
+}
+
+.lightbox__empty-text {
+  margin: 0;
+  font-family: var(--font-titulos);
+  font-style: italic;
+  font-size: clamp(1.15rem, 2.4vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--champagne);
+}
+
+.lightbox__empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+/* El .btn-ghost global usa vino (legible sólo sobre claro): sobre el panel
+   oscuro del visor se repinta en crema para mantener el contraste. */
+.lightbox__empty-actions .btn-ghost {
+  color: var(--champagne);
+  border-color: color-mix(in srgb, var(--dorado-claro) 42%, transparent);
+}
+
+.lightbox__empty-actions .btn-ghost:hover,
+.lightbox__empty-actions .btn-ghost:focus-visible {
+  color: var(--dorado-luz);
+  border-color: var(--dorado-luz);
+  background-color: color-mix(in srgb, var(--dorado-claro) 10%, transparent);
+}
+
+/* =========================================================================
+   15. TESTIMONIOS (CARRUSEL)
+   ========================================================================= */
+
+/* El bloque forma parte de la banda crema continua que va de servicios a
+   galería (section--continua); el degradé radial dorado apenas lo matiza. */
+.reviews-section {
+  background:
+    radial-gradient(70% 60% at 12% 0%, color-mix(in srgb, var(--dorado) 14%, transparent) 0%, transparent 66%),
+    var(--champagne);
+  border-top: 1px solid var(--borde-tenue);
+}
+
+.reviews-viewport {
+  overflow: hidden;
+  margin-inline: calc(var(--gutter) * -1);
+  padding-inline: var(--gutter);
+}
+
+.reviews-track {
+  display: flex;
+  align-items: stretch;
+  gap: 20px;
+  transition: transform 0.55s var(--ease-out);
+  will-change: transform;
+}
+
+.review-card {
+  flex: 0 0 clamp(260px, 33%, 380px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(22px, 2.4vw, 30px);
+  border-radius: var(--radio);
+  background: var(--marfil);
+  border: 1px solid var(--borde-tenue);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.review-card:hover {
+  transform: translateY(calc(-1 * var(--transform-hover)));
+  box-shadow: var(--shadow-md);
+}
+
+.review-stars {
+  display: flex;
+  gap: 3px;
+  color: var(--dorado);
+  font-size: 0.95rem;
+}
+
+.review-text {
+  font-size: 0.96rem;
+  line-height: 1.68;
+  color: var(--texto);
+  flex: 1;
+}
+
+/* Comilla de apertura decorativa y dorada, como el carrusel original. */
+.review-text::before {
+  content: "\201C";
+  font-family: var(--font-titulos);
+  font-size: 2.2rem;
+  line-height: 0;
+  vertical-align: -0.35em;
+  color: var(--dorado);
+  margin-right: 4px;
+  opacity: 0.6;
+}
+
+/* Línea de fuente: "Reseña verificada en …". Tarjeta clara -> --dorado-texto
+   (contraste AA); si algún día la tarjeta pasara a fondo oscuro, usar
+   --dorado-luz. Los 14px de arriba la separan del texto de la reseña. */
+.review-source {
+  margin-top: 14px;
+  font-family: var(--font-texto);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dorado-texto);
+}
+
+/* margin-top:auto ancla la fila del autor al pie y, como el track estira las
+   tarjetas (align-items: stretch), todas las filas de autores visibles quedan
+   a la misma altura aunque el texto de la reseña varíe. */
+/* El divisor que separaba el bloque del autor ya no va: el avatar hace de
+   ancla visual y la fila se lee como una sola unidad. */
+.review-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 14px;
+}
+
+.review-author__initials {
+  width: 42px;
+  height: 42px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-family: var(--font-titulos);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--tinta);
+  background: var(--champagne);
+  border: 1px solid var(--dorado-claro);
+}
+
+.review-author b {
+  display: block;
+  font-family: var(--font-texto);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+/* Excluye al avatar: es un span dentro de .review-author y, al tener el mismo
+   peso de clase pero un selector de elemento encima, ganaba este bloque y le
+   pisaba el color y el cuerpo de la inicial. */
+.review-author span:not(.review-author__initials) {
+  display: block;
+  font-family: var(--font-texto);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--dorado-texto);
+}
+
+.carousel-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.carousel-btn {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--vino);
+  background: var(--marfil);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.carousel-btn:hover:not([disabled]) {
+  background: var(--vino);
+  border-color: var(--vino);
+  color: var(--champagne);
+}
+
+.carousel-btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.carousel-dots {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-media);
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.carousel-dot:hover {
+  background: var(--dorado);
+}
+
+.carousel-dot[aria-current="true"] {
+  background: var(--vino);
+  transform: scale(1.5);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dorado) 25%, transparent);
+}
+
+/* =========================================================================
+   16. CONTACTO Y FORMULARIO
+   ========================================================================= */
+
+.contact {
+  background: var(--marfil);
+  border-top: 1px solid var(--borde-tenue);
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: clamp(30px, 4vw, 56px);
+  align-items: start;
+}
+
+.contact-info h2 {
+  text-wrap: balance;
+}
+
+.contact-info > p {
+  color: var(--texto-suave);
+  max-width: 46ch;
+}
+
+.wa-card {
+  margin-top: 28px;
+  padding: 22px;
+  border-radius: var(--radio);
+  background: var(--champagne);
+  border: 1px solid var(--line-dorada-tenue);
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+}
+
+.wa-card b {
+  color: var(--vino-profundo);
+  font-family: var(--font-titulos);
+  font-size: 1.08rem;
+}
+
+.wa-card p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--texto-suave);
+}
+
+.contact-form {
+  padding: clamp(24px, 3vw, 38px);
+  border-radius: var(--radio-lg);
+  background: var(--champagne);
+  border: 1px solid var(--borde-tenue);
+  box-shadow: var(--shadow-md);
+}
+
+.contact-form h3 {
+  margin-bottom: 4px;
+}
+
+.contact-form .sub {
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+  margin-bottom: 22px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.form-group {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--vino);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 13px 15px;
+  font-family: var(--font-texto);
+  font-size: 0.96rem;
+  font-weight: 300;
+  color: var(--texto);
+  background: var(--marfil);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.form-group textarea {
+  min-height: 118px;
+  resize: vertical;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--placeholder);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--dorado);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dorado) 22%, transparent);
+}
+
+.form-group input[aria-invalid="true"],
+.form-group select[aria-invalid="true"],
+.form-group textarea[aria-invalid="true"] {
+  border-color: var(--error);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--error) 14%, transparent);
+}
+
+.field-error {
+  font-size: 0.8rem;
+  color: var(--error);
+  min-height: 0;
+}
+
+.form-group.has-error .field-error {
+  min-height: 1.1em;
+}
+
+.form-hint {
+  font-size: 0.76rem;
+  color: var(--texto-suave);
+}
+
+.form-status {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  border: 1px solid transparent;
+}
+
+.form-status:empty {
+  display: none;
+}
+
+.form-status.is-ok {
+  background: color-mix(in srgb, var(--exito) 9%, transparent);
+  border-color: color-mix(in srgb, var(--exito) 30%, transparent);
+  color: color-mix(in srgb, var(--exito) 70%, var(--tinta));
+}
+
+.form-status.is-error {
+  background: color-mix(in srgb, var(--error) 8%, transparent);
+  border-color: color-mix(in srgb, var(--error) 28%, transparent);
+  color: var(--error);
+}
+
+.form-submit {
+  margin-top: 6px;
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 620px) {
+  .form-submit {
+    width: auto;
+  }
+}
+
+/* =========================================================================
+   17. MODALES
+   ========================================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, var(--tinta) calc((0.62 + var(--overlay-oscuro) * 100%), transparent));
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur) var(--ease), visibility var(--dur);
+  overflow-y: auto;
+}
+
+.modal-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-card {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  padding: clamp(26px, 3.4vw, 42px);
+  border-radius: var(--radio-lg);
+  background: var(--marfil);
+  border: 1px solid var(--line-dorada-tenue);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(14px) scale(0.985);
+  transition: transform var(--dur-lenta) var(--ease-out);
+}
+
+.modal-overlay.is-open .modal-card {
+  transform: translateY(0) scale(1);
+}
+
+.modal-card--wide {
+  width: min(980px, 100%);
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--vino);
+  background: var(--champagne);
+  border: 1px solid var(--line);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.modal-close:hover {
+  background: var(--vino);
+  color: var(--champagne);
+}
+
+.modal-head {
+  padding-right: 48px;
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--borde-tenue);
+}
+
+.modal-head span {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dorado-texto);
+  margin-bottom: 8px;
+}
+
+.modal-head h3 {
+  font-size: clamp(1.25rem, 2.2vw, 1.7rem);
+  margin: 0;
+}
+
+.modal-body > p {
+  color: var(--texto-suave);
+  font-size: 0.97rem;
+}
+
+.modal-benefits {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin-block: 22px;
+}
+
+.benefit-item {
+  padding: 16px 18px;
+  border-radius: 12px;
+  background: var(--champagne);
+  border: 1px solid var(--borde-tenue);
+}
+
+.benefit-item b {
+  display: block;
+  font-family: var(--font-titulos);
+  font-size: 1.02rem;
+  color: var(--vino-profundo);
+  margin-bottom: 4px;
+}
+
+.benefit-item span {
+  font-size: 0.9rem;
+  line-height: 1.58;
+  color: var(--texto-suave);
+}
+
+.modal-list {
+  display: grid;
+  gap: 10px;
+  margin-block: 14px 22px;
+  font-size: 0.92rem;
+  color: var(--texto-suave);
+}
+
+.modal-list li {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.modal-list .icon {
+  font-size: 1rem;
+  color: var(--dorado-texto);
+  margin-top: 0.3em;
+}
+
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.modal-foot {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--borde-tenue);
+  font-size: 0.88rem;
+  color: var(--texto-suave);
+}
+
+.modal-foot a {
+  font-weight: 500;
+}
+
+/* =========================================================================
+   18. FOOTER Y FAB
+   ========================================================================= */
+
+.site-footer {
+  padding-block: calc(var(--section-y) - 8px) 30px;
+  color: color-mix(in srgb, var(--champagne) 86%, transparent);
+  background:
+    radial-gradient(80% 70% at 88% 0%, color-mix(in srgb, var(--dorado) 22%, transparent) 0%, transparent 62%),
+    linear-gradient(160deg, var(--vino) 0%, var(--vino-profundo) 100%);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 26px;
+  align-items: center;
+  padding-bottom: 26px;
+  border-bottom: 1px solid color-mix(in srgb, var(--dorado-claro) 24%, transparent);
+}
+
+.footer-logo .top {
+  font-family: var(--font-titulos);
+  font-size: 1.28rem;
+  color: var(--dorado-luz);
+  line-height: 1.28;
+}
+
+.footer-logo .bottom {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  color: color-mix(in srgb, var(--champagne) 72%, transparent);
+}
+
+.footer-social {
+  display: flex;
+  gap: 12px;
+}
+
+.footer-social a {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  color: var(--dorado-luz);
+  border: 1px solid color-mix(in srgb, var(--dorado-claro) 40%, transparent);
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+
+.footer-social a:hover {
+  background: var(--dorado-luz);
+  color: var(--vino-profundo);
+  transform: translateY(calc(-1 * var(--transform-hover)));
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 22px;
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--champagne) 66%, transparent);
+}
+
+.floating-wa {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 118;
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: var(--marfil);
+  background-color: var(--whatsapp);
+  background-image: linear-gradient(150deg, var(--whatsapp-claro), var(--whatsapp-oscuro));
+  box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--whatsapp) 60%, transparent);
+  animation: var(--pulse-fab);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.floating-wa:hover {
+  color: var(--marfil);
+  transform: scale(1.07);
+  box-shadow: 0 16px 34px -8px color-mix(in srgb, var(--whatsapp) 72%, transparent);
+}
+
+/* =========================================================================
+   19. ANIMACIONES Y REVELADO
+   ========================================================================= */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheen {
+  from {
+    transform: translateX(-120%);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulse-wa {
+  0%,
+  70%,
+  100% {
+    box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--whatsapp) 60%, transparent), 0 0 0 0 color-mix(in srgb, var(--whatsapp) 50%, transparent);
+  }
+  35% {
+    box-shadow: 0 12px 28px -8px color-mix(in srgb, var(--whatsapp) 60%, transparent), 0 0 0 14px color-mix(in srgb, var(--whatsapp) 0%, transparent);
+  }
+}
+
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(-1 * var(--parallax)));
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.hero [data-parallax] {
+  will-change: transform;
+}
+
+/* =========================================================================
+   20. RESPONSIVE
+   ========================================================================= */
+
+/* >= 1280px: todo visible, con eslogan (comportamiento por defecto). */
+
+/* 1100 - 1279px: se oculta sólo el eslogan y se reduce el gap del menú. */
+@media (max-width: 1279.98px) {
+  .logo-text .bottom {
+    display: none;
+  }
+  .site-nav {
+    gap: clamp(12px, 1.4vw, 22px);
+  }
+  .nav-links {
+    gap: clamp(12px, 1.1vw, 20px);
+  }
+  .nav-links a {
+    font-size: 0.875rem;
+  }
+  .logo-text .top {
+    font-size: 1.25rem;
+  }
+}
+
+/* < 1100px: menú hamburguesa accesible y CTA compacto. */
+@media (max-width: 1099.98px) {
+  :root {
+    --header-h: 72px;
+    --header-h-scrolled: 64px;
+  }
+  .nav-links {
+    display: none;
+  }
+  .burger {
+    display: grid;
+  }
+  /* CTA compacto: conserva el ícono y reduce el contorno sin cortar el texto. */
+  .nav-cta .btn {
+    padding: 10px 16px;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+  }
+  .logo-text .top {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 980px) {
+  .about-grid,
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-photo {
+    max-width: 420px;
+  }
+  .service-card.is-featured {
+    grid-column: span 1;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .service-card.is-featured .service-tag {
+    margin-top: auto;
+  }
+  /* Mosaico a 2 columnas: las dos primeras siguen anchas, el resto en pares. */
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gallery-cat-card:nth-child(1),
+  .gallery-cat-card:nth-child(2),
+  .gallery-cat-card:nth-child(7) {
+    grid-column: span 2;
+  }
+  .gallery-cat-card:nth-child(3),
+  .gallery-cat-card:nth-child(4),
+  .gallery-cat-card:nth-child(5),
+  .gallery-cat-card:nth-child(6) {
+    grid-column: span 1;
+  }
+  .gallery-cat-card:nth-child(1),
+  .gallery-cat-card:nth-child(2) {
+    min-height: 230px;
+  }
+  .gallery-cat-card:nth-child(3),
+  .gallery-cat-card:nth-child(4),
+  .gallery-cat-card:nth-child(5),
+  .gallery-cat-card:nth-child(6) {
+    min-height: 200px;
+  }
+}
+
+/* Consultoría: por debajo de 900px las columnas se apilan con altura natural. */
+@media (max-width: 899.98px) {
+  .consultoria-grid {
+    grid-template-columns: 1fr;
+  }
+  .policy-box {
+    height: auto;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  body {
+    font-size: 16px;
+  }
+  :root {
+    --gutter: 18px;
+    /* Mobile: una sola respiración de 44px por lado. */
+    --section-y: 44px;
+  }
+  .hero-content {
+    text-align: left;
+  }
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  /* Mosaico a 1 columna: todo vuelve a span 1 para no crear columnas implícitas. */
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+  .gallery-cat-card:nth-child(n) {
+    grid-column: span 1;
+  }
+  .gallery-cat-card:nth-child(1),
+  .gallery-cat-card:nth-child(2) {
+    min-height: 210px;
+  }
+  .gallery-cat-card:nth-child(3),
+  .gallery-cat-card:nth-child(4),
+  .gallery-cat-card:nth-child(5),
+  .gallery-cat-card:nth-child(6) {
+    min-height: 180px;
+  }
+  .gallery-cat-card:nth-child(7) {
+    grid-column: span 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    min-height: 150px;
+    padding-inline: 22px;
+    text-align: center;
+  }
+  .gallery-cat-card:nth-child(7) .gallery-caption {
+    font-size: 1.12rem;
+  }
+  /* La banda vuelve a columna centrada: el velo tiene que ser vertical de nuevo. */
+  .gallery-cat-card:nth-child(7).gallery-cat-card--con-medios::after {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--vino-noche) 0%, transparent) 0%, color-mix(in srgb, var(--vino-noche) 0%, transparent) 16%, color-mix(in srgb, var(--vino-noche) 55%, transparent) 30%, color-mix(in srgb, var(--vino-noche) 88%, transparent) 44%, color-mix(in srgb, var(--vino-noche) 94%, transparent) 100%);
+  }
+  .lightbox__figure img,
+  .lightbox__video {
+    max-height: calc(100vh - 230px);
+  }
+  .lightbox__nav {
+    width: 42px;
+    height: 42px;
+  }
+  .reviews-viewport {
+    margin-inline: calc(var(--gutter) * -1);
+  }
+  .review-card {
+    flex-basis: 86%;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+  .lightbox__nav {
+    width: 42px;
+    height: 42px;
+  }
+  .floating-wa {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 420px) {
+  .logo-mark {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+    font-size: 1rem;
+  }
+  .logo {
+    gap: 10px;
+  }
+  .logo-text .top {
+    font-size: 1.05rem;
+  }
+  .nav-cta .btn {
+    padding: 9px 12px;
+  }
+}
+
+/* =========================================================================
+   21. PREFERENCIAS DE MOVIMIENTO Y ALTO CONTRASTE
+   ========================================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* El header salta de altura sin transición. */
+  .site-nav,
+  .site-header::after {
+    transition: none !important;
+  }
+  .reveal,
+  .reveal-scale {
+    opacity: 1;
+    transform: none;
+  }
+  .floating-wa {
+    animation: none;
+  }
+  [data-parallax] {
+    transform: none !important;
+  }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --texto: color-mix(in srgb, var(--texto) 72%, var(--tinta));
+    --texto-suave: var(--texto);
+    --borde-tenue: color-mix(in srgb, var(--line) 160%, transparent);
+    --line: color-mix(in srgb, var(--borde) 95%, var(--tinta));
+    --dorado-texto: color-mix(in srgb, var(--dorado-texto) 74%, var(--tinta));
+  }
+  .service-card,
+  .consultoria-block,
+  .contact-form,
+  .review-card,
+  .gallery-cat-card {
+    border-color: var(--line);
+  }
+}
+
+@media print {
+  .site-header,
+  .floating-wa,
+  .reading-progress,
+  .mobile-menu,
+  .overlay,
+  .modal-overlay,
+  .lightbox,
+  .carousel-controls {
+    display: none !important;
+  }
+  body {
+    background: var(--marfil);
+    color: var(--mascara);
+  }
+  body::before,
+  body::after {
+    display: none;
+  }
+}
