@@ -2154,22 +2154,42 @@ button.service-card {
   border-top: 1px solid var(--borde-tenue);
 }
 
+/* Contenedor de la pista. Es el posicionador de referencia de las dos flechas:
+   --flecha-gutter es el carril lateral reservado (las tarjetas nunca entran ahí)
+   y --flecha-size el diámetro del botón, así el offset sale siempre centrado en
+   su carril. Los defaults son los de móvil; los de escritorio suben por
+   breakpoint. */
+.carousel-stage {
+  position: relative;
+  --flecha-gutter: 40px;
+  --flecha-size: 36px;
+  --track-gap: 20px;
+  padding-inline: var(--flecha-gutter);
+}
+
 .reviews-viewport {
-  overflow: hidden;
-  margin-inline: calc(var(--gutter) * -1);
-  padding-inline: var(--gutter);
+  /* clip y no hidden: recorta la tira sin volver el viewport un contenedor de
+     scroll. El borde de recorte cae justo entre dos tarjetas porque el ancho de
+     la tarjeta se deriva del ancho disponible (ver .review-card y los
+     breakpoints): asi nunca asoma una tarjeta parcial. */
+  overflow: clip;
 }
 
 .reviews-track {
   display: flex;
   align-items: stretch;
-  gap: 20px;
+  gap: var(--track-gap);
   transition: transform 0.55s var(--ease-out);
   will-change: transform;
 }
 
+/* Por defecto (hasta 720px) entra una sola tarjeta y ocupa todo el carril, así
+   que la siguiente no asoma ni un filo. El ancho sale del propio carril y el
+   paso de la pista es el mismo ancho, de modo que el JS cae en la misma cuenta
+   de "tarjetas por pantalla" y el borde de recorte coincide con el borde de la
+   tarjeta. */
 .review-card {
-  flex: 0 0 clamp(260px, 33%, 380px);
+  flex: 0 0 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -2271,6 +2291,8 @@ button.service-card {
   color: var(--dorado-texto);
 }
 
+/* Fila de puntos: queda debajo de las tarjetas, centrada. Los botones ya no
+   viven acá, sólo los indicadores de grupo. */
 .carousel-controls {
   display: flex;
   align-items: center;
@@ -2279,24 +2301,49 @@ button.service-card {
   margin-top: 30px;
 }
 
+/* Flechas: absolutas sobre el carril lateral que reservó el stage, con top: 50%
+   + translateY(-50%) para quedar centradas contra la altura de las tarjetas (el
+   viewport no tiene alto propio más allá del de la pista). */
 .carousel-btn {
-  width: 46px;
-  height: 46px;
+  position: absolute;
+  top: 50%;
+  width: var(--flecha-size);
+  height: var(--flecha-size);
   display: grid;
   place-items: center;
+  transform: translateY(-50%);
   border-radius: 50%;
-  font-size: 1.1rem;
+  font-size: calc(var(--flecha-size) * 0.42);
   color: var(--vino);
   background: var(--marfil);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
-  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
 }
 
+.carousel-btn--prev {
+  left: calc((var(--flecha-gutter) - var(--flecha-size)) / 2);
+}
+
+.carousel-btn--next {
+  right: calc((var(--flecha-gutter) - var(--flecha-size)) / 2);
+}
+
+/* El hover invierte: fondo vino, chevron claro. La sombra se agranda un poco
+   para despegar el círculo de las tarjetas. */
 .carousel-btn:hover:not([disabled]) {
   background: var(--vino);
   border-color: var(--vino);
   color: var(--champagne);
+  box-shadow: var(--shadow-md);
+}
+
+/* Anillo dorado propio, para que el foco no dependa del orden de la cascada
+   (el :focus-visible global aparece antes que este bloque). */
+.carousel-btn:focus-visible {
+  outline: 2px solid var(--dorado);
+  outline-offset: 3px;
+  border-radius: 50%;
 }
 
 .carousel-btn[disabled] {
@@ -3075,12 +3122,6 @@ button.service-card {
     width: 42px;
     height: 42px;
   }
-  .reviews-viewport {
-    margin-inline: calc(var(--gutter) * -1);
-  }
-  .review-card {
-    flex-basis: 86%;
-  }
   .footer-grid {
     grid-template-columns: 1fr;
     justify-items: start;
@@ -3093,6 +3134,40 @@ button.service-card {
   .lightbox__nav {
     width: 42px;
     height: 42px;
+  }
+}
+
+/* Carrusel de testimonios, por cantidad de tarjetas que entran. El ancho de la
+   tarjeta se deriva del carril disponible para que N tarjetas + N-1 separaciones
+   llenen el carril exacto: el borde de recorte cae en el hueco entre la última
+   visible y la siguiente, así que nunca asoma una tarjeta parcial. El JS calcula
+   la misma cuenta (ancho + separación) y cae en el mismo N. */
+@media (min-width: 720px) {
+  .carousel-stage {
+    /* Carril de 56 px para una flecha de 46 px: 5 px de aire a cada lado. */
+    --flecha-gutter: 56px;
+    --flecha-size: 46px;
+  }
+  .review-card {
+    flex: 0 0 min(420px, calc((100% - var(--track-gap)) / 2));
+  }
+}
+
+@media (min-width: 980px) {
+  .review-card {
+    flex: 0 0 calc((100% - (2 * var(--track-gap))) / 3);
+  }
+}
+
+@media (max-width: 479.98px) {
+  /* Antes de 480 px no hay flechas: a 36 px sobre un carril de 40 px quedan
+     demasiado pegadas a la tarjeta y sin aire, así que el swipe y los puntos
+     hacen el trabajo y el carril se le devuelve entero a la tarjeta. */
+  .carousel-btn {
+    display: none;
+  }
+  .carousel-stage {
+    --flecha-gutter: 0px;
   }
 }
 
@@ -3185,7 +3260,8 @@ button.service-card {
   .overlay,
   .modal-overlay,
   .lightbox,
-  .carousel-controls {
+  .carousel-controls,
+  .carousel-btn {
     display: none !important;
   }
   body {

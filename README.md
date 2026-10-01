@@ -74,7 +74,7 @@ siempre: si el `.webp` falta, el navegador **no** cae al `<img>` y la imagen que
 | `#asesorias` | Pilar 02 Consultoría | Etapas del cliente + panel de política de cupos |
 | `#academia` | Pilar 03 Academia | 3 tarjetas de formación |
 | `#galeria` | Galería | Mosaico de 7 categorías con fotos reales que abren un único visor (o el aviso *Próximamente*) |
-| `#testimonios` | Testimonios | Carrusel de 12 reseñas con puntos, flechas, swipe y autoplay (6 s) |
+| `#testimonios` | Testimonios | Carrusel de 12 reseñas con flechas laterales, puntos, swipe y autoplay (6 s) |
 | `#contacto` | Contacto | Formulario validado que deriva a WhatsApp |
 
 Además: modal de **Bendito Espejo** y **visor de galería** (navegación por teclado, swipe,
@@ -280,10 +280,37 @@ const TESTIMONIOS = [
 ];
 ```
 
-Las 12 reseñas se renderizan en un **carrusel** (`#reviewsTrack` dentro de `#reviewsViewport`):
-mueve el bloque con `transform`, calcula cuántas reseñas entran por pantalla y arma un botón de
-punto por grupo. La cantidad por pantalla queda entre `POR_PANTALLA_MOVIL` (1) y
-`POR_PANTALLA_DESKTOP` (3), cerca del inicio de `initTestimonios()`.
+Las 12 reseñas se renderizan en un **carrusel** (`#reviewsTrack` dentro de `#reviewsViewport`,
+que a su vez está dentro de `.carousel-stage`): mueve el bloque con `transform`, calcula cuántas
+reseñas entran por pantalla y arma un botón de punto por grupo. La cantidad por pantalla queda
+entre `POR_PANTALLA_MOVIL` (1) y `POR_PANTALLA_DESKTOP` (3), cerca del inicio de
+`initTestimonios()`.
+
+#### Las flechas, a los costados
+
+La pista y las dos flechas viven en `.carousel-stage` (`position: relative`), así que los
+botones se apoyan **a los laterales de las tarjetas** y quedan centrados contra su altura con
+`top: 50%` + `translateY(-50%)`. Los puntos siguen debajo, centrados, en `.carousel-controls`.
+
+| Qué | Dónde |
+|---|---|
+| Carril lateral reservado | `--flecha-gutter` (56 px desde 720 px, 40 px de 480 a 720 px, 0 por debajo de 480 px) |
+| Diámetro del botón | `--flecha-size` (46 px desde 720 px, 36 px de 480 a 720 px) |
+| Posición | `.carousel-btn--prev` a la izquierda, `--next` a la derecha, con el offset calculado para que el círculo quede centrado en su carril |
+| Ancho de la pista | `overflow: clip` en `.reviews-viewport`: recorta sin volverlo un contenedor de scroll |
+
+El **orden del DOM es el del teclado**: anterior, pista, siguiente. Por eso el `role="region"`
+con `aria-roledescription="carrusel"` pasó del viewport al stage, que ahora es lo que contiene
+los controles. Cada flecha sigue con su `aria-label`, su estado `[disabled]` en los extremos y
+el anillo dorado de `:focus-visible`. Por debajo de 480 px las flechas se ocultan
+(`display: none`): a 36 px sobre un carril de 40 px quedan pegadas a la tarjeta, así que
+mandan el swipe y los puntos.
+
+El ancho de la tarjeta se deriva del carril disponible —una tarjeta a lo ancho hasta 720 px,
+dos de 720 a 980 px y tres desde 980 px— para que N tarjetas más sus N-1 separaciones llenen el
+carril exacto. Así el borde de recorte cae en el hueco entre la última tarjeta visible y la
+siguiente: **no asoma ninguna tarjeta parcial**, que era el filo que se veía antes. El mismo
+cálculo hace el JS con el ancho medido, así que la cuenta de "reseñas por pantalla" coincide.
 
 - Orden vertical de cada tarjeta: estrellas, texto (con la comilla dorada de apertura aportada
   por el CSS de `.review-text`), línea de fuente y fila del autor (avatar con la inicial, nombre
@@ -299,10 +326,9 @@ punto por grupo. La cantidad por pantalla queda entre `POR_PANTALLA_MOVIL` (1) y
   autoplay se detiene **para siempre** y el carrusel pasa a control manual.
 - Navegación con flechas del teclado (`←`, `→`, `Home`, `End`) y swipe táctil.
 - Los puntos son `<button>` con `aria-label="Ir al grupo de reseñas N"`; el activo lleva
-  `aria-current`. El viewport tiene `role="region"`, `aria-roledescription="carrusel"` y
-  `aria-label="Testimonios"`.
+  `aria-current`.
 - Las tarjetas fuera de pantalla quedan con `aria-hidden` e `inert`, fuera del orden de tabulación.
-- `initReveal` se corre **después** de `initTestimonios` para que el viewport quede observado.
+- `initReveal` se corre **después** de `initTestimonios` para que el stage quede observado.
 
 ---
 
@@ -506,11 +532,34 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
 - Ritmo vertical medido entre bloques de contenido:
   1440 px → `145 · 144 · 126 · 126 · 145 · 144`; 768 y 390 px → `79–81`.
   Servicios, galería y testimonios forman una banda champagne continua.
-- Testimonios: carrusel con las 12 reseñas, 3 por pantalla en escritorio (1 en móvil),
-  puntos por grupo, autoplay de 6 s que se pausa al hover/enfoque y se apaga para siempre
-  al primer clic, tecla o swipe, flechas y swipe;
-  cada tarjeta lleva su línea "Reseña verificada en …" y sin rastro de la grilla
+- Testimonios: carrusel con las 12 reseñas, 3 por pantalla desde 980 px, 2 de 720 a 980 px
+  y 1 por debajo (3 / 1 en el JS antes de este ajuste), puntos por grupo, autoplay de 6 s que
+  se pausa al hover/enfoque y se apaga para siempre al primer clic, tecla o swipe, flechas y
+  swipe; cada tarjeta lleva su línea "Reseña verificada en …" y sin rastro de la grilla
   estática anterior.
+
+**Flechas del carrusel de testimonios (Chrome/CDP, nueve anchos: 1920 / 1440 / 1100 / 1024 /
+980 / 979 / 720 / 600 / 480 / 479 / 390 px)**
+
+- 0 errores de consola y `scrollWidth` igual a `clientWidth` en todos los anchos.
+- Orden del DOM = orden del teclado: `reviewPrev` → `reviewsViewport` → `reviewNext`; los
+  puntos siguen debajo, con desvío 0 px del centro del contenedor.
+- Centro vertical de las flechas contra las tarjetas: **0 px de diferencia** en los cuatro
+  anchos pedidos y en los cinco de borde. Aire entre el círculo y la tarjeta: 5 px (carril de
+  56 px, flecha de 46 px) desde 720 px y 2 px de 480 a 720 px. Solape con tarjetas visibles: 0.
+- Tarjetas por pantalla: 3 desde 980 px, 2 de 720 a 980 px, 1 por debajo; en los cinco anchos de
+  borde (479 / 480 / 719 / 720 / 979 / 980) el número cambia exactamente en el breakpoint y
+  **la holgura a la derecha del recorte es 0 px**: no asoma ninguna tarjeta parcial, en el
+  estado inicial ni después de avanzar. Antes asomaban 4 px a 1440, 6 px a 1024, 184 px a
+  768 y 48 px a 390.
+- Hover: fondo vino `rgb(124, 31, 45)` y chevron champagne `rgb(246, 235, 220)`.
+  Foco por `Tab`: anillo `2px solid rgb(193, 154, 75)` (el `--dorado`) a 3 px de offset, con
+  el círculo conservando `border-radius: 50%`.
+- Clic con mouse, `←` / `→` y swipe mueven el carrusel y los puntos quedan sincronizados; en el
+  último grupo la flecha siguiente queda `[disabled]` y la anterior habilitada. El autoplay
+  avanza solo a los 6 s de cargar y queda detenido para siempre después de la primera
+  interacción. Por debajo de 480 px las flechas no están en el DOM visual (`display: none`),
+  y el teclado sigue funcionando a través de los puntos.
 
 **Velo de la galería con contenido real (Chrome/CDP, capturas a 1440 / 1024 / 768 / 390 px)**
 

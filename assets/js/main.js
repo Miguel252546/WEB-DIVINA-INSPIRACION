@@ -1146,8 +1146,9 @@
     }
 
     /* Navegación con flechas del teclado. Se escucha en la sección completa y no
-       solo en el viewport: los puntos y los botones viven en .carousel-controls,
-       afuera del viewport, así que el foco del teclado nunca pasa por él. */
+       solo en el viewport: los botones viven en .carousel-stage y los puntos en
+       .carousel-controls, los dos afuera del viewport, así que el foco del
+       teclado nunca pasa por él. */
     if (seccion) {
       seccion.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft') { e.preventDefault(); tomarControl(); avanzar(-1); }

@@ -479,19 +479,26 @@
         <p class="reveal">La tranquilidad y satisfacción de quienes nos eligieron para sus momentos más importantes.</p>
       </div>
 
-      <div class="reviews-viewport reveal" id="reviewsViewport"
+      <!-- Las flechas viven en .carousel-stage, a los costados de las tarjetas y
+           centradas en su altura; los puntos quedan abajo, centrados. El orden del
+           DOM es tambien el del teclado: anterior, pista, siguiente. -->
+      <div class="carousel-stage reveal" id="reviewsStage"
            role="region" aria-roledescription="carrusel" aria-label="Testimonios">
-        <ul class="reviews-track" id="reviewsTrack"></ul>
+        <button class="carousel-btn carousel-btn--prev" id="reviewPrev" type="button" aria-label="Grupo de reseñas anterior">
+          <svg class="icon stroke" aria-hidden="true"><use href="#i-chevron-left"></use></svg>
+        </button>
+
+        <div class="reviews-viewport" id="reviewsViewport">
+          <ul class="reviews-track" id="reviewsTrack"></ul>
+        </div>
+
+        <button class="carousel-btn carousel-btn--next" id="reviewNext" type="button" aria-label="Grupo de reseñas siguiente">
+          <svg class="icon stroke" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
+        </button>
       </div>
 
       <div class="carousel-controls reveal" role="group" aria-label="Controles del carrusel de testimonios">
-        <button class="carousel-btn" id="reviewPrev" type="button" aria-label="Grupo de reseñas anterior">
-          <svg class="icon stroke" aria-hidden="true"><use href="#i-chevron-left"></use></svg>
-        </button>
         <div class="carousel-dots" id="reviewDots"></div>
-        <button class="carousel-btn" id="reviewNext" type="button" aria-label="Grupo de reseñas siguiente">
-          <svg class="icon stroke" aria-hidden="true"><use href="#i-chevron-right"></use></svg>
-        </button>
       </div>
     </div>
   </section>
