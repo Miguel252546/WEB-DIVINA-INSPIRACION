@@ -414,6 +414,49 @@ WhatsApp rotulan **`ESCRIBINOS`** y dejan el número solo en el `href` y en el `
   (ícono de *Corporativos* a 768 px) y los títulos van de 7,03:1 a 15,36:1.
 - Etiquetas ARIA en todos los iconos decorativos (`aria-hidden`) y en los botones de sólo icono.
 
+### El hover sólo existe en lo que se puede clickear
+
+Regla del sitio: **si no se puede hacer clic, no reacciona al pasar el mouse**. Ningún
+elemento informativo cambia de color, borde, sombra, transform ni relleno al recibir el
+puntero; el hover es una señal de "acá se puede actuar", así que sólo la tienen los
+elementos interactivos.
+
+**Mantienen hover** (y por lo tanto su `transition`):
+
+| Elemento | Selector |
+|---|---|
+| Botones y píldoras | `.btn-primary`, `.btn-gold`, `.btn-outline`, `.btn-ghost`, `button` |
+| Botón ESCRIBINOS del header | `.nav-cta .btn` (y el brillo `::after` a `data-intensity="max"`) |
+| Logo (es un link a `#inicio`) | `.logo` |
+| Links del menú y del menú móvil | `.nav-links a`, `.mobile-menu__list a` |
+| Hamburguesa | `.burger` |
+| Tarjetas de la galería (abren el visor) | `.gallery-cat-card` y sus hijos |
+| Tarjeta Bendito Espejo (abre el modal) | `button.service-card.is-featured` |
+| Visor de galería | `.lightbox__close`, `.lightbox__nav`, `.lightbox__thumb` |
+| Carrusel de reseñas | `.carousel-btn`, `.carousel-dot` |
+| Modal | `.modal-close` |
+| Redes del footer | `.footer-social a` |
+| Botones flotantes | `.floating-wa`, `.floating-ig` |
+
+**Sin hover** (se eliminó la regla y la `transition` que solo servía para ella):
+
+- `.credential-item` — credenciales de La Productora (5 `div`).
+- `article.service-card` — las 7 tarjetas de servicios Informativos. La regla quedó
+  limitada a `button.service-card`, que es la única clickeable (Bendito Espejo): las
+  tarjetas `<article>` y sus `.service-icon` ya no se elevan ni giran.
+- `.etapa-item` — etapas de Consultoría (3 `div`).
+- `.review-card` — las 12 reseñas (`li`), que antes se elevaban al pasar el mouse.
+
+Nunca tuvieron hover y por eso no se tocó nada: fotos de Deborah y del equipo, métricas
+(`.stat`), panel de Consultoría (`.consultoria-block`), tarjeta del formulario
+(`.contact-form`), tarjeta de WhatsApp (`.wa-card`), `.policy-box` y los `.cat-line`
+decorativos.
+
+Los estados que **no** son hover siguen intactos: `:focus-visible` (foco por teclado),
+`aria-current` en el enlace activo del menú, los estados del carrusel y del visor, y las
+animaciones de aparición al hacer scroll (`.reveal`), los contadores y el parallax, que no
+dependen del mouse.
+
 ---
 
 ## 8. Rendimiento y SEO

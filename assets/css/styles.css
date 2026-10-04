@@ -1170,12 +1170,6 @@ html[data-intensity="max"] .btn:hover::after {
 .credential-item {
   padding: 16px 0 16px 20px;
   border-left: 2px solid var(--line-dorada);
-  transition: border-color var(--dur) var(--ease), padding-left var(--dur) var(--ease);
-}
-
-.credential-item:hover {
-  border-left-color: var(--dorado);
-  padding-left: 24px;
 }
 
 .credential-item b {
@@ -1266,7 +1260,7 @@ html[data-intensity="max"] .btn:hover::after {
   pointer-events: none;
 }
 
-.service-card:hover {
+button.service-card:hover {
   transform: translateY(calc(-1 * var(--transform-hover)));
   border-color: var(--line-dorada);
   box-shadow: var(--shadow-lg), 0 calc(20px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 18%, transparent);
@@ -1301,7 +1295,7 @@ html[data-intensity="max"] .btn:hover::after {
   width: auto;
 }
 
-.service-card:hover .service-icon {
+button.service-card:hover .service-icon {
   transform: translateY(-2px) rotate(-3deg);
   box-shadow: 0 0 calc(20px * var(--glow-oro)) color-mix(in srgb, var(--dorado) 35%, transparent);
 }
@@ -1446,7 +1440,6 @@ button.service-card {
   border: 1px solid var(--borde-tenue);
   position: relative;
   padding-left: 46px;
-  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
 
 .etapa-item::before {
@@ -1459,11 +1452,6 @@ button.service-card {
   border: 1px solid var(--dorado);
   transform: rotate(45deg);
   background: var(--champagne);
-}
-
-.etapa-item:hover {
-  border-color: var(--line-dorada);
-  transform: translateX(calc(var(--transform-hover) * 0.5));
 }
 
 .etapa-item b {
@@ -2224,12 +2212,6 @@ button.service-card {
   background: var(--marfil);
   border: 1px solid var(--borde-tenue);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow var(--dur) var(--ease), transform var(--dur) var(--ease);
-}
-
-.review-card:hover {
-  transform: translateY(calc(-1 * var(--transform-hover)));
-  box-shadow: var(--shadow-md);
 }
 
 .review-stars {
