@@ -75,11 +75,12 @@ siempre: si el `.webp` falta, el navegador **no** cae al `<img>` y la imagen que
 | `#academia` | Pilar 03 Academia | 3 tarjetas de formación |
 | `#galeria` | Galería | Mosaico de 7 categorías con fotos reales que abren un único visor (o el aviso *Próximamente*) |
 | `#testimonios` | Testimonios | Carrusel de 12 reseñas con flechas laterales, puntos, swipe y autoplay (6 s) |
-| `#contacto` | Contacto | Formulario validado que deriva a WhatsApp |
+| `#contacto` | Contacto | Formulario validado que deriva a WhatsApp y tarjeta "Atención Directa vía WhatsApp" con botón **ESCRIBINOS** |
 
 Además: modal de **Bendito Espejo** y **visor de galería** (navegación por teclado, swipe,
 tira de miniaturas y estado vacío con acceso a WhatsApp) y dos botones flotantes, el de
-WhatsApp y el de Instagram apilado encima.
+WhatsApp y el de Instagram apilado encima. Ningún botón muestra el número de teléfono como
+texto: los de WhatsApp dicen **ESCRIBINOS** (ver [sección 6](#6-formulario-de-consulta)).
 
 ---
 
@@ -357,6 +358,39 @@ petición falla, muestra un aviso y rehabilita el botón.
 
 **Datos de contacto:** WhatsApp `+54 9 351 225-946` (`WHATSAPP_NUMBER`) e Instagram
 `@d.inspiracioneventos`.
+
+### Los botones de WhatsApp dicen "ESCRIBINOS", no el número
+
+Ningún botón ni enlace muestra el teléfono como texto visible: todos los que apuntan a
+WhatsApp rotulan **`ESCRIBINOS`** y dejan el número solo en el `href` y en el `aria-label`.
+
+| Botón | Selector | `href` |
+|---|---|---|
+| Header (píldora vino) | `.nav-cta > a.btn-primary` | `https://wa.me/549351225946` |
+| Menú móvil (pie) | `#mobileMenu .mobile-menu__foot > a.btn-gold` | `https://wa.me/549351225946` |
+| Consultoría (política) | `.policy-box > a.btn-gold` | `https://wa.me/549351225946` |
+| Contacto, tarjeta "Atención Directa" | `.wa-card > a.btn-gold` | `https://wa.me/549351225946` |
+| Galería sin fotos (lightbox) | `#lightboxEmpty a.btn-gold` | `https://wa.me/549351225946` |
+| Modal Bendito Espejo | `.modal-actions > a.btn-primary` | `https://wa.me/549351225946?text=…` |
+| Footer (icono) | `.footer-social > a[href*="wa.me"]` | `https://wa.me/549351225946` |
+| Flotante | `a.floating-wa` | `https://wa.me/549351225946` |
+
+- **Las mayúsculas no se escriben en el HTML:** el texto va literal como `Escribinos` y
+  `.btn` aplica `text-transform: uppercase` (y `letter-spacing: 0.09em`). Por eso el header
+  y los dos botones de la tabla que antes mostraban el número ahora se leen igual.
+- **Accesibilidad:** los dos botones que mostraban el número (menú móvil y tarjeta de
+  Contacto) llevan `aria-label="Escribinos por WhatsApp al +54 9 351 225-946"`, que arranca
+  con el texto visible y le agrega el número a quien usa lector de pantalla. El `aria-label`
+  pisa el contenido textual, así que hay que actualizarlo junto con el texto si alguno cambia.
+- **Dónde se cambia el número:** en los `href` `https://wa.me/549351225946` de `index.html`
+  (ocho lugares), en la constante `WHATSAPP_NUMBER` de `main.js` (línea ~264) que arma el
+  `window.open` del formulario, y en el `aria-label` de los dos botones de arriba. El
+  `telephone` del JSON-LD (`+549351225946`) y el mensaje de estado del formulario lo citan
+  en texto plano y no se tocan al cambiar el rótulo.
+- **Tamaño:** el botón de Contacto mide `170.63 × 53.67 px` (antes `222.61 × 53.67 px` con el
+  número). Se conserva el `padding` de `.btn` (`14px 26px`), con el que la proporción
+  ancho/alto queda en 3,18:1, dentro de la familia de los demás `.btn-gold` (2,71:1 a 5,72:1),
+  y las métricas del texto son las mismas que las del botón del header. El alto no se movió.
 
 ---
 
