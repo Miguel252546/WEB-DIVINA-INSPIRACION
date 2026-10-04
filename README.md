@@ -361,19 +361,30 @@ petición falla, muestra un aviso y rehabilita el botón.
 
 ### Los botones de WhatsApp dicen "ESCRIBINOS", no el número
 
-Ningún botón ni enlace muestra el teléfono como texto visible: todos los que apuntan a
-WhatsApp rotulan **`ESCRIBINOS`** y dejan el número solo en el `href` y en el `aria-label`.
+Ningún botón ni enlace muestra el teléfono como texto visible: **ninguno de los ocho** deja el
+número en el cuerpo del enlace, y los que llevan rótulo propio dicen **`ESCRIBINOS`**. El
+número queda solo en el `href` y en el `aria-label`.
 
-| Botón | Selector | `href` |
-|---|---|---|
-| Header (píldora vino) | `.nav-cta > a.btn-primary` | `https://wa.me/549351225946` |
-| Menú móvil (pie) | `#mobileMenu .mobile-menu__foot > a.btn-gold` | `https://wa.me/549351225946` |
-| Consultoría (política) | `.policy-box > a.btn-gold` | `https://wa.me/549351225946` |
-| Contacto, tarjeta "Atención Directa" | `.wa-card > a.btn-gold` | `https://wa.me/549351225946` |
-| Galería sin fotos (lightbox) | `#lightboxEmpty a.btn-gold` | `https://wa.me/549351225946` |
-| Modal Bendito Espejo | `.modal-actions > a.btn-primary` | `https://wa.me/549351225946?text=…` |
-| Footer (icono) | `.footer-social > a[href*="wa.me"]` | `https://wa.me/549351225946` |
-| Flotante | `a.floating-wa` | `https://wa.me/549351225946` |
+| Botón | Selector | Texto visible | `href` |
+|---|---|---|---|
+| Header (píldora vino) | `.nav-cta > a.btn-primary` | `Escribinos` | `https://wa.me/549351225946` |
+| Menú móvil (pie) | `#mobileMenu .mobile-menu__foot > a.btn-gold` | `Escribinos` | `https://wa.me/549351225946` |
+| Consultoría (política) | `.policy-box > a.btn-gold` | `Consultar Disponibilidad de Agenda` | `https://wa.me/549351225946` |
+| Contacto, tarjeta "Atención Directa" | `.wa-card > a.btn-gold` | `Escribinos` | `https://wa.me/549351225946` |
+| Galería sin fotos (lightbox) | `#lightboxEmpty a.btn-gold` | `Escribinos` | `https://wa.me/549351225946` |
+| Modal Bendito Espejo | `.modal-actions > a.btn-primary` | `Reservar Disponibilidad vía WhatsApp` | `https://wa.me/549351225946?text=…` |
+| Footer (icono) | `.footer-social > a[href*="wa.me"]` | — (solo ícono) | `https://wa.me/549351225946` |
+| Flotante | `a.floating-wa` | — (solo ícono) | `https://wa.me/549351225946` |
+
+**Los cuatro que no dicen "ESCRIBINOS" y por qué:** los dos de ícono (footer y flotante) no
+tienen texto que rotular, así que llevan el rótulo en el `aria-label`
+(`WhatsApp de Divina Inspiración` y `Escribinos por WhatsApp`). Los otros dos —el de la
+política de Consultoría y el del modal— anuncian su propia acción en vez del rótulo
+genérico, porque el modal además precarga un mensaje: son llamados a la acción con intención
+propia y se dejaron intactos a propósito. El cambio fue quirúrgico: solo se modificaron los
+botones que **mostraban el número** (menú móvil y tarjeta de Contacto) y el rótulo del header.
+La auditoría final verificó los ocho: 0 con el teléfono visible, 4 con `Escribinos` en el
+texto y 2 con el `aria-label` completo.
 
 - **Las mayúsculas no se escriben en el HTML:** el texto va literal como `Escribinos` y
   `.btn` aplica `text-transform: uppercase` (y `letter-spacing: 0.09em`). Por eso el header
@@ -410,8 +421,12 @@ WhatsApp rotulan **`ESCRIBINOS`** y dejan el número solo en el `href` y en el `
 - Contraste verificado **AA** en texto normal (≥ 4.5:1) y en texto grande (≥ 3:1).
 - El texto claro sobre la foto de las tarjetas de categoría (título, contador e ícono) no
   depende de la foto: se apoya en el velo `--vino-noche` y en las sombras de texto. Medido
-  sobre capturas reales a 1440, 1024, 768 y 390 px, lo más bajo del sitio es **6,07:1**
-  (ícono de *Corporativos* a 768 px) y los títulos van de 7,03:1 a 15,36:1.
+  sobre capturas reales a 1440, 1024, 768 y 390 px, lo más bajo del sitio en esa zona es
+  **6,07:1** (ícono de *Corporativos* a 768 px) y los títulos van de 7,03:1 a 15,36:1.
+  La auditoría final lo volvió a medir a 1440 px con otro método —el texto oculto y el píxel
+  de fondo predominante de su propia caja— y dio **7,01:1** en el contador y **7,12:1** en el
+  título, sin que el velo tocara el mínimo. El footer, que es vino y no foto, baja a
+  **5,31:1** en su línea de copyright.
 - Etiquetas ARIA en todos los iconos decorativos (`aria-hidden`) y en los botones de sólo icono.
 
 ### El hover sólo existe en lo que se puede clickear
@@ -639,7 +654,8 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
 
 **Comportamiento del sitio (navegador real, seis anchos: 1920 / 1440 / 1280 / 1024 / 768 / 390)**
 
-- 0 errores de consola y de red; 0 scroll horizontal.- Mosaico de galería: 4 columnas con filas `[2, 4, 1]` desde 1024 px; 2 columnas en 768 px;
+- 0 errores de consola y de red; 0 scroll horizontal.
+- Mosaico de galería: 4 columnas con filas `[2, 4, 1]` desde 1024 px; 2 columnas en 768 px;
   1 columna en 390 px. Ninguna tarjeta se solapa ni se sale de la grilla.
 - Las 7 categorías arrancan vacías: la tarjeta muestra *Próximamente* y el aviso
   funcional del visor entra completo en la ventana en los seis anchos.
@@ -736,6 +752,47 @@ navegador desde antes de este cambio (el `color-mix()` con `calc()` multiplicati
 válido en CSS), así que el hero no pinta ese degradé y hereda el fondo de `body`; y el
 `box-shadow` del botón flotante de WhatsApp se congela al diff porque lo anima
 `pulse-wa` en bucle infinito. Los resplandores no se tocan.
+
+### Auditoría final (sin cambios de código)
+
+Se reverificaron las tres capas del proyecto con los scripts de medición **fuera** del
+repositorio, así que el sitio quedó sin archivos de prueba. Resultado: 0 hallazgos que
+requieran tocar el código y 4 imprecisiones de este README, ya corregidas arriba (los cuatro
+enlaces de WhatsApp con rótulo propio, el mínimo del footer, el wording de pausa y un `-`
+pegado en el punto 10).
+
+**A · Estático (Node, sin navegador)**
+
+| Chequeo | Resultado |
+|---|---|
+| Literales de color fuera de `:root` | 0 en `styles.css`, `main.js` y `galeria-data.js`; `background_color` del manifest replica `--fondo-pastel` |
+| Variables | 80 distintas, todas definidas; 129 mezclas `color-mix()` con porcentaje explícito; la única que se escribe desde JS es `--reveal-delay` |
+| Paleta vieja | 0 apariciones de `#fcf0ee` y `#ebf3e8`; `--marfil` y `--champagne` siguen definidas; `--crema` ya no se usa |
+| WhatsApp | 0 teléfonos visibles en botones o links de `index.html` y `main.js`; de los 8 enlaces `wa.me`, 4 dicen `Escribinos`, 2 llevan el `aria-label` completo y ninguno muestra el número |
+| Estructura | un solo `<meta name="theme-color">`; llaves CSS 417/417; manifest y JSON-LD válidos; `title` y `description` presentes |
+| Assets | 92 rutas referenciadas, 92 en disco |
+| Higiene | 0 archivos de verificación dentro del repositorio |
+
+Dos falsos positivos conocidos, para no volver a perseguirlos: al extraer rutas de `url()`
+aparece un `%23g` que **no** es un asset, es un SVG inline con `data:` en `styles.css:360`;
+y los dos enlaces de WhatsApp con copy propio (política de Consultoría y modal) no son un
+fallo, están documentados arriba.
+
+**B · Navegador (Chrome/CDP, un solo arranque y una sola página, 1440 / 1024 / 390 px)**
+
+| Chequeo | Resultado |
+|---|---|
+| Consola y red | 0 errores y 0 peticiones fallidas o ≥ 400 |
+| Scroll horizontal | `scrollWidth` = `clientWidth` en los tres anchos, sin elemento culpable |
+| Contraste sobre fondo sólido | 16 / 13 / 14 pares únicos (55 / 48 / 48 nodos), 0 fallos de AA, mínimo **4,63:1** en los tres anchos |
+| Contraste sobre foto y footer | por captura recortada de cada elemento a 1440 px, con el texto oculto y muestreando el píxel predominante: galería de **5,5:1** (la tarjeta *Próximamente*, sin foto) a 15,65:1, con 7,01:1 en el contador y 7,12:1 en el título; footer de **5,31:1** (copyright) a 7,81:1 |
+| Hover | 31 reglas `:hover` / `:focus-within` en el CSSOM, incluidas las de `@media` y `@supports`: 0 aplican a un elemento no clickeable |
+| Header | logo, menú y botón comparten el centro vertical con 0 px de diferencia; dentro del botón, la asimetría de padding es de 0,01 px |
+| Presencia y posiciones | Instagram arriba de WhatsApp, sin solape y dentro del viewport en los tres anchos; flechas del carrusel a 5 px de las tarjetas y 0 px de desvío vertical; las 12 reseñas con su línea "Reseña verificada en …"; subtítulo de galería en una línea a 1440 y 1024; los fondos de sección son solo `#F3EFF8` y `#F8F5FB` (el champagne translúcido del header no es un fondo de sección) |
+
+El mínimo global del sitio sigue siendo el de las métricas del hero (4,55:1) que se midió por
+píxeles en la sección anterior; los 4,63:1 de esta auditoría son el mínimo entre los nodos con
+fondo sólido que esta pasada evaluó.
 
 ---
 
