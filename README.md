@@ -409,6 +409,7 @@ en cinco anclas, una base y sus derivados:
 
 /* Base: fondos, tinta y texto */
 --marfil: #fdf9f4;       --champagne: #f6ebdc;       --rosa-polvo: #f3e2e0;
+--fondo-pastel-rosa: #fcf0ee;    --fondo-pastel-salvia: #ebf3e8;
 --tinta: #3b1018;        --texto: #5a4347;            --texto-suave: #7a6468;
 --dorado-texto: #7d5a1c; --rosa-antiguo: #b86b77;     --borde: #e8d8c8;
 ```
@@ -427,15 +428,48 @@ Reglas para tocar la paleta:
 - **Fuera de `:root`:** todo color va como `var(--token)` o `color-mix(in srgb, var(--token) N%, transparent)`.
   No se admiten literales: las sombras, velos y degradados se derivan de los tokens.
 - **`--mascara`:** negro técnico, solo para las máscaras del sprite SVG y la impresión.
-- **Fuera del CSS:** `manifest.webmanifest` (`background_color` replica `--marfil`,
+- **Fuera del CSS:** `manifest.webmanifest` (`background_color` replica `--fondo-pastel-rosa`,
   `theme_color` replica `--vino`) y el `<meta name="theme-color">` de `index.html` no pueden
   leer variables CSS, así que hay que actualizarlos a mano junto con `:root`.
 - **Contraste:** `--texto`, `--texto-etapa`, `--texto-suave`, `--dorado-texto`, `--placeholder`
-  y `--vino` superan AA (4,5:1) sobre `--marfil`, `--champagne` y `--rosa-polvo`. El texto
+  y `--vino` superan AA (4,5:1) sobre `--marfil`, `--champagne`, `--rosa-polvo`,
+  `--fondo-pastel-rosa` y `--fondo-pastel-salvia`. El texto
   claro sobre foto depende del velo `--vino-noche`: si se aclara, hay que volver a medirlo.
 - Los dos tonos de estado `--exito` y `--error` son literales, y también el verde de WhatsApp
   y su familia y el degradé de Instagram, que son colores de marca y no forman parte de la
   paleta decorativa.
+
+**Fondos pasteles de sección** — los dos tonos que se usan como fondo de página y de banda
+están declarados junto a la base en `:root`:
+
+```css
+--fondo-pastel-rosa: #fcf0ee;    /* rosa empolvado, cálido */
+--fondo-pastel-salvia: #ebf3e8;  /* verde salvia, frío */
+```
+
+Reparto actual, y dónde se edita cada uno:
+
+| Zona | Selector | Fondo |
+|---|---|---|
+| Página | `html`, `body` | `--fondo-pastel-rosa` |
+| Hero | `.hero` | `--fondo-pastel-rosa` (degradé en 3 paradas) |
+| Productora | `.about` | `--fondo-pastel-rosa` |
+| Servicios (incluye Consultoría) | `.services` | `--fondo-pastel-salvia` |
+| Galería | `.gallery-section` | `--fondo-pastel-salvia` |
+| Testimonios | `.reviews-section` | `--fondo-pastel-salvia` (+ radial dorado) |
+| Contacto | `.contact` | `--fondo-pastel-rosa` |
+
+Para cambiar el tono general, alcanza con editar esos dos valores en `:root` y, en el mismo
+movimiento, `background_color` en `manifest.webmanifest`. El reparto por zona se cambia en
+la regla de cada sección. Ningún otro color del sitio depende de esta decisión: las tarjetas,
+paneles, botones, textos, header, footer y el campo del formulario conservan sus propios
+fondos, y `--marfil` y `--champagne` siguen disponibles para los paneles claros.
+
+Ojo con dos efectos que se superponen al fondo y bajan el contraste real del hero: el
+monograma `DI` y el grano (nivel `max`). Medido sobre los píxeles realmente pintados, las
+métricas del hero quedan en 4,37 – 4,54:1, apenas por debajo de AA en algunos anchos; sin
+esas capas el rosa puro da 4,89:1. Si hace falta aire, hay que ajustar `--monograma` o
+`--textura`, no el pastel.
 
 **Iconos** — sprite SVG al final de `index.html`. Cada símbolo es un `<symbol id="i-…">` y se
 usa con `<use href="#i-…">`. Ya están definidos: anillos, corona, maletín, micrófono/prensa,
@@ -531,7 +565,7 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
   altura real y ubica la figura entre la barra y la tira de miniaturas.
 - Ritmo vertical medido entre bloques de contenido:
   1440 px → `145 · 144 · 126 · 126 · 145 · 144`; 768 y 390 px → `79–81`.
-  Servicios, galería y testimonios forman una banda champagne continua.
+  Servicios, galería y testimonios forman una banda salvia continua.
 - Testimonios: carrusel con las 12 reseñas, 3 por pantalla desde 980 px, 2 de 720 a 980 px
   y 1 por debajo (3 / 1 en el JS antes de este ajuste), puntos por grupo, autoplay de 6 s que
   se pausa al hover/enfoque y se apaga para siempre al primer clic, tecla o swipe, flechas y
@@ -583,7 +617,30 @@ dentro de 390 px de ventana: ahora `.site-nav` mide 358 px y no hay scroll horiz
 recortar: 900×474 → **783×412** (1,90, la proporción de la tarjeta), `.webp` derivado igual y
 `portadaW`/`portadaH` de `assets/js/galeria-data.js` actualizados. El original
 `assets/gallery/15-anos/xv-04.jpg` está intacto y las otras seis portadas no cambian al
-re-ejecutar el script.
+re-e-executar el script.
+
+**Fondos pasteles (Chrome/CDP, cinco anchos: 1440 / 1280 / 1024 / 768 / 390 px)**
+
+Contraste calculado sobre los píxeles realmente pintados detrás de cada texto (se vuelve el
+texto transparente y se mide su propia caja), en lugar de contra el color de la sección:
+
+| Zona | Antes | Después |
+|---|---|---|
+| Hero (texto y métricas) | 4,15 – 4,31:1 | 4,37 – 4,54:1 |
+| Productora | 5,20:1 | 4,89:1 |
+| Servicios | 4,63:1 | 4,81:1 |
+| Galería | 4,63:1 | 4,81:1 |
+| Testimonios | 4,51 – 4,54:1 | 4,69 – 4,78:1 |
+| Contacto | 5,20:1 | 4,89:1 |
+
+Las luminancias relativas de los pasteles quedan en 0,892 (rosa) y 0,876 (salvia), por encima
+del piso de 0,85. Salieron 7 diferencias por ancho (35 en total) al comparar los estilos
+computados de los 767 elementos del sitio entre la versión anterior y la actual, y las 35 son
+`background-color` de `body` o de una sección: ningún color de texto, borde, sombra o fondo de
+tarjeta se movió. 0 errores de consola y `scrollWidth` igual a `clientWidth` en los cinco
+anchos. Nota: el `background` del `.hero` está descartado por el navegador desde antes de este
+cambio (el `color-mix()` con `calc()` multiplicativo no es válido en CSS), así que el hero no
+pinta ese degradé y hereda el fondo de `body`; los resplandores no se tocan.
 
 ---
 

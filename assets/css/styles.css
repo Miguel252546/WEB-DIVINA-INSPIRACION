@@ -58,6 +58,14 @@
   --rosa-antiguo: #b86b77;
   --borde: #e8d8c8;
 
+  /* Fondos pastel de las secciones. Son las dos variables que definen toda la
+     banda de color del sitio: para cambiarla alcanza con editar estos dos
+     valores acá, porque el resto de las reglas solo usa var(). No reemplazan a
+     las bases de arriba, que siguen sirviendo para tarjetas, paneles, campos y
+     botones, y por eso no se tocan. */
+  --fondo-pastel-rosa: #FCF0EE;
+  --fondo-pastel-salvia: #EBF3E8;
+
   /* Alias de rol: el mismo dorado claro con el nombre para el que se usa. */
   --dorado-claro: var(--dorado-luz);
   --borde-dorado: var(--dorado-claro);
@@ -221,6 +229,9 @@ html[data-intensity="max"] {
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* El lienzo de la página lleva el mismo pastel que el body: es lo que se ve
+     en el rebote del scroll y en las zonas donde ningún bloque pinta fondo. */
+  background-color: var(--fondo-pastel-rosa);
   /* Compensa el header para que ningún título de sección ancla quede tapado.
      Se toma la altura en reposo (la mayor) para que también encaje al scrollear. */
   scroll-padding-top: calc(var(--header-h) + 22px);
@@ -229,7 +240,9 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--champagne);
+  /* El fondo de la página: se apoya en pastel porque es la banda que respira
+     entre secciones y en los tramos sin fondo propio. */
+  background-color: var(--fondo-pastel-rosa);
   color: var(--texto);
   font-family: var(--font-texto);
   font-size: 17px;
@@ -977,7 +990,7 @@ html[data-intensity="max"] .btn:hover::after {
   background:
     radial-gradient(60% 46% at 78% 12%, color-mix(in srgb, var(--dorado) calc((0.2 * var(--glow-oro) * 100%), transparent)) 0%, transparent 68%),
     radial-gradient(52% 44% at 8% 84%, color-mix(in srgb, var(--vino) calc((0.1 * var(--glow-vino) * 100%), transparent)) 0%, transparent 70%),
-    linear-gradient(180deg, var(--champagne) 0%, var(--marfil) 55%, var(--champagne) 100%);
+    linear-gradient(180deg, var(--fondo-pastel-rosa) 0%, var(--fondo-pastel-rosa) 55%, var(--fondo-pastel-rosa) 100%);
 }
 
 .hero::after {
@@ -1058,10 +1071,13 @@ html[data-intensity="max"] .btn:hover::after {
    10. LA PRODUCTORA
    ========================================================================= */
 
+/* La productora cierra la banda clara con el hero: mismo pastel rosa. El velo
+   degradado de arriba es 0% de champagne (totalmente transparente) y se deja
+   tal cual, como pedían los degradés. */
 .about {
   background:
     linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--champagne) 0%, transparent) 100%),
-    var(--marfil);
+    var(--fondo-pastel-rosa);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -1175,8 +1191,10 @@ html[data-intensity="max"] .btn:hover::after {
    11. SERVICIOS Y PILARES
    ========================================================================= */
 
+/* Servicios abre la banda alterna (salvia) que continúa en galería y
+   testimonios. */
 .services {
-  background: var(--champagne);
+  background: var(--fondo-pastel-salvia);
 }
 
 /* Separación entre pilares dentro de Áreas de Especialidad: 44px, nunca más. */
@@ -1553,8 +1571,9 @@ button.service-card {
    13. GALERÍA
    ========================================================================= */
 
+/* Mismo pastel que servicios: la banda alterna sigue siendo una sola. */
 .gallery-section {
-  background: var(--champagne);
+  background: var(--fondo-pastel-salvia);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -2145,12 +2164,13 @@ button.service-card {
    15. TESTIMONIOS (CARRUSEL)
    ========================================================================= */
 
-/* El bloque forma parte de la banda crema continua que va de servicios a
-   galería (section--continua); el degradé radial dorado apenas lo matiza. */
+/* El bloque cierra la banda alterna que va de servicios a galería
+   (section--continua); el degradé radial dorado apenas lo matiza y queda
+   como estaba, sólo cambia la parada que es el color base. */
 .reviews-section {
   background:
     radial-gradient(70% 60% at 12% 0%, color-mix(in srgb, var(--dorado) 14%, transparent) 0%, transparent 66%),
-    var(--champagne);
+    var(--fondo-pastel-salvia);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -2382,8 +2402,9 @@ button.service-card {
    16. CONTACTO Y FORMULARIO
    ========================================================================= */
 
+/* Cierra la página volviendo a la banda clara del hero. */
 .contact {
-  background: var(--marfil);
+  background: var(--fondo-pastel-rosa);
   border-top: 1px solid var(--borde-tenue);
 }
 
