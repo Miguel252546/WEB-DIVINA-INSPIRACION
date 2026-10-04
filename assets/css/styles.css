@@ -58,13 +58,15 @@
   --rosa-antiguo: #b86b77;
   --borde: #e8d8c8;
 
-  /* Fondos pastel de las secciones. Son las dos variables que definen toda la
-     banda de color del sitio: para cambiarla alcanza con editar estos dos
-     valores acá, porque el resto de las reglas solo usa var(). No reemplazan a
-     las bases de arriba, que siguen sirviendo para tarjetas, paneles, campos y
-     botones, y por eso no se tocan. */
-  --fondo-pastel-rosa: #FCF0EE;
-  --fondo-pastel-salvia: #EBF3E8;
+  /* Fondo pastel de las secciones. Son las dos variables que definen toda la
+     banda de color del sitio: un solo tono, lavanda pastel, con la variante
+     apenas más clara para que el salto entre secciones casi no se note. Para
+     cambiarlo alcanza con editar estos dos valores acá (o igualarlos, para un
+     único color en todo el sitio), porque el resto de las reglas solo usa
+     var(). No reemplazan a las bases de arriba, que siguen sirviendo para
+     tarjetas, paneles, campos y botones, y por eso no se tocan. */
+  --fondo-pastel: #F3EFF8;
+  --fondo-pastel-suave: #F8F5FB;
 
   /* Alias de rol: el mismo dorado claro con el nombre para el que se usa. */
   --dorado-claro: var(--dorado-luz);
@@ -231,7 +233,7 @@ html {
   scroll-behavior: smooth;
   /* El lienzo de la página lleva el mismo pastel que el body: es lo que se ve
      en el rebote del scroll y en las zonas donde ningún bloque pinta fondo. */
-  background-color: var(--fondo-pastel-rosa);
+  background-color: var(--fondo-pastel);
   /* Compensa el header para que ningún título de sección ancla quede tapado.
      Se toma la altura en reposo (la mayor) para que también encaje al scrollear. */
   scroll-padding-top: calc(var(--header-h) + 22px);
@@ -242,7 +244,7 @@ body {
   margin: 0;
   /* El fondo de la página: se apoya en pastel porque es la banda que respira
      entre secciones y en los tramos sin fondo propio. */
-  background-color: var(--fondo-pastel-rosa);
+  background-color: var(--fondo-pastel);
   color: var(--texto);
   font-family: var(--font-texto);
   font-size: 17px;
@@ -990,7 +992,7 @@ html[data-intensity="max"] .btn:hover::after {
   background:
     radial-gradient(60% 46% at 78% 12%, color-mix(in srgb, var(--dorado) calc((0.2 * var(--glow-oro) * 100%), transparent)) 0%, transparent 68%),
     radial-gradient(52% 44% at 8% 84%, color-mix(in srgb, var(--vino) calc((0.1 * var(--glow-vino) * 100%), transparent)) 0%, transparent 70%),
-    linear-gradient(180deg, var(--fondo-pastel-rosa) 0%, var(--fondo-pastel-rosa) 55%, var(--fondo-pastel-rosa) 100%);
+    linear-gradient(180deg, var(--fondo-pastel) 0%, var(--fondo-pastel) 55%, var(--fondo-pastel) 100%);
 }
 
 .hero::after {
@@ -1071,13 +1073,13 @@ html[data-intensity="max"] .btn:hover::after {
    10. LA PRODUCTORA
    ========================================================================= */
 
-/* La productora cierra la banda clara con el hero: mismo pastel rosa. El velo
+/* La productora cierra la banda clara con el hero: mismo pastel lavanda. El velo
    degradado de arriba es 0% de champagne (totalmente transparente) y se deja
    tal cual, como pedían los degradés. */
 .about {
   background:
     linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--champagne) 0%, transparent) 100%),
-    var(--fondo-pastel-rosa);
+    var(--fondo-pastel);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -1191,10 +1193,10 @@ html[data-intensity="max"] .btn:hover::after {
    11. SERVICIOS Y PILARES
    ========================================================================= */
 
-/* Servicios abre la banda alterna (salvia) que continúa en galería y
+/* Servicios abre la banda alterna (pastel suave) que continúa en galería y
    testimonios. */
 .services {
-  background: var(--fondo-pastel-salvia);
+  background: var(--fondo-pastel-suave);
 }
 
 /* Separación entre pilares dentro de Áreas de Especialidad: 44px, nunca más. */
@@ -1573,7 +1575,7 @@ button.service-card {
 
 /* Mismo pastel que servicios: la banda alterna sigue siendo una sola. */
 .gallery-section {
-  background: var(--fondo-pastel-salvia);
+  background: var(--fondo-pastel-suave);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -2170,7 +2172,7 @@ button.service-card {
 .reviews-section {
   background:
     radial-gradient(70% 60% at 12% 0%, color-mix(in srgb, var(--dorado) 14%, transparent) 0%, transparent 66%),
-    var(--fondo-pastel-salvia);
+    var(--fondo-pastel-suave);
   border-top: 1px solid var(--borde-tenue);
 }
 
@@ -2404,7 +2406,7 @@ button.service-card {
 
 /* Cierra la página volviendo a la banda clara del hero. */
 .contact {
-  background: var(--fondo-pastel-rosa);
+  background: var(--fondo-pastel);
   border-top: 1px solid var(--borde-tenue);
 }
 

@@ -9,7 +9,7 @@
   "id": "/divina-inspiracion/",
   "display": "standalone",
   "orientation": "portrait-primary",
-  "background_color": "#FCF0EE",
+  "background_color": "#F3EFF8",
   "theme_color": "#7c1f2d",
   "categories": ["business", "lifestyle", "events"],
   "icons": [
