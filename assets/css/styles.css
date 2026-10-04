@@ -729,6 +729,7 @@ html[data-intensity="max"] .btn:hover::after {
 .site-nav {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: clamp(14px, 1.8vw, 30px);
   min-height: var(--header-h);
   transition: min-height var(--dur) var(--ease);
@@ -851,11 +852,14 @@ html[data-intensity="max"] .btn:hover::after {
   flex: 0 0 auto;
   border-radius: var(--radio-pill);
   padding: 11px 20px;
+  padding-inline-start: calc(20px + 0.04em);
+  padding-inline-end: calc(20px - 0.04em);
   font-size: 0.78rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
   box-shadow: 0 10px 22px -12px color-mix(in srgb, var(--sombra) 70%, transparent);
+  transform: none;
 }
 
 .nav-cta .btn span {
@@ -3007,6 +3011,8 @@ button.service-card {
   /* CTA compacto: conserva el ícono y reduce el contorno sin cortar el texto. */
   .nav-cta .btn {
     padding: 10px 16px;
+    padding-inline-start: calc(16px + 0.03em);
+    padding-inline-end: calc(16px - 0.03em);
     font-size: 0.72rem;
     letter-spacing: 0.06em;
   }
@@ -3217,6 +3223,8 @@ button.service-card {
   }
   .nav-cta .btn {
     padding: 9px 10px;
+    padding-inline-start: calc(10px + 0.02em);
+    padding-inline-end: calc(10px - 0.02em);
     font-size: 0.66rem;
     letter-spacing: 0.04em;
   }
