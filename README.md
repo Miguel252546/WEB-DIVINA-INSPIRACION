@@ -36,14 +36,22 @@ No requiere Node.js, npm ni compilación.
 ├── robots.txt
 ├── README.md
 ├── scripts/
-│   └── generar-galeria.py         # Herramienta de desarrollo: optimiza las fotos y
-│                                  # regenera assets/js/galeria-data.js
+│   ├── generar-galeria.py         # Herramienta de desarrollo: optimiza las fotos y
+│   │                              # regenera assets/js/galeria-data.js
+│   └── agregar-video.py           # Herramienta de desarrollo: recomprime los videos,
+│                                  # arma poster + miniatura y regenera
+│                                  # assets/js/galeria-videos.js
 └── assets/
     ├── css/
      │   └── styles.css             # 21 bloques numerados: tokens, componentes, responsive
     ├── js/
     │   ├── main.js                # 14 secciones comentadas, IIFE en modo estricto
-    │   └── galeria-data.js        # GENERADO: portada + items de las 7 categorías
+    │   ├── galeria-data.js        # GENERADO: portada + items de las 7 categorías
+    │   └── galeria-videos.js      # GENERADO: los videos, fusionados sobre esas fotos
+    ├── video/
+    │   ├── videos.json            # FUENTE de los videos (la edita agregar-video.py)
+    │   └── <categoría>/           # NN-slug.mp4, NN-slug.jpg/.webp, NN-slug-thumb.jpg/.webp
+    │       bodas/ · espejo/ · novias/ · prensa/ · quinceanos/   # las 5 con videos (11)
     ├── images/
     │   ├── deborah-perfil.jpg/.webp
     │   ├── equipo-2026.jpg/.webp
@@ -118,22 +126,25 @@ Para cambiar el nivel, editá el atributo en `index.html`:
 
 ## 5. Cargar contenido (galería, equipo, testimonios)
 
-El contenido editable vive en `assets/js/main.js` (equipo y testimonios) y en
-`assets/js/galeria-data.js` (los medios de la galería, que se genera con un script).
+El contenido editable vive en `assets/js/main.js` (equipo y testimonios) y en las dos
+fuentes de la galería: `assets/js/galeria-data.js` (fotos, generado con un script) y
+`assets/video/videos.json` (videos, generado con otro).
 
 ### 5.1 Galería
 
-La galería tiene dos fuentes de datos que `main.js` fusiona al arrancar:
+La galería tiene tres fuentes de datos que `main.js` fusiona al arrancar:
 
 | Dónde | Qué aporta | Quién lo escribe |
 |---|---|---|
 | `GALERIA` en `assets/js/main.js` | `titulo` e `icono` de cada categoría | a mano |
-| `window.DI_GALERIA` en `assets/js/galeria-data.js` | `portada` e `items` (los medios) | `scripts/generar-galeria.py` |
+| `window.DI_GALERIA` en `assets/js/galeria-data.js` | `portada` e `items` (las fotos) | `scripts/generar-galeria.py` |
+| `window.DI_GALERIA_VIDEOS` en `assets/js/galeria-videos.js` | los videos, con su `poster` y su lugar en la lista | `scripts/agregar-video.py` |
 
-`index.html` carga `galeria-data.js` **antes** que `main.js` (ambos con `defer`). La fusión es
-defensiva: si el archivo falta, no se cargó o le falta una clave, esa categoría queda vacía y
-sigue mostrando la píldora *Próximamente* y el aviso del visor. No se rompe nada ni se dispara
-un error de consola.
+`index.html` carga `galeria-data.js`, después `galeria-videos.js` y después `main.js`
+(los tres con `defer`). La fusión es defensiva: si un archivo falta, no se cargó o
+le falta una clave, esa parte queda vacía y la categoría sigue mostrando la píldora
+*Próximamente* y el aviso del visor. No se rompe nada ni se dispara un error de
+consola.
 
 #### Flujo para agregar fotos
 
@@ -224,24 +235,236 @@ El generador escribe un alt por defecto `'<título de la categoría> — foto N'
 2. Si sólo querés cambiar el **título** que se antepone a todos los alt, editar la tupla
    `CATEGORIAS` del mismo script. Eso regenera los alt y vuelve a elegir las portadas.
 
-#### Agregar videos
+#### Videos en la galería
 
-El visor ya soporta videos: alcanza con sumar el objeto a `items` **en `main.js`** (el
-generador no los produce).
+Los videos tienen su propia herramienta, `scripts/agregar-video.py`: recomprime el
+archivo, le arma el poster y la miniatura, y deja la entrada escrita en
+`assets/video/videos.json`. **No se editan a mano ni `main.js` ni
+`assets/js/galeria-data.js`.**
 
-```js
-items: [
-  { tipo: 'foto',  src: 'assets/images/galeria/bodas/01.jpg', thumb: '…/01-thumb.jpg', alt: 'Novios en la ceremonia' },
-  { tipo: 'video', src: 'assets/video/bodas/boda-01.mp4',
-    thumb:  'assets/images/galeria/bodas/boda-01-thumb.jpg',   // miniatura de la tira
-    poster: 'assets/images/galeria/bodas/boda-01-poster.jpg',  // fotograma de carga
-    alt: 'Video del primer baile' }
-]
+```
+pip install Pillow          # sólo para generar el poster y la miniatura
+winget install Gyan.FFmpeg  # sólo para recomprimir y sacar fotogramas (opcional)
+
+python scripts/agregar-video.py agregar "C:\Videos\boda.mp4" --categoria Bodas
+python scripts/agregar-video.py agregar "boda.mov" --categoria Bodas --posicion 2
+python scripts/agregar-video.py listar
+python scripts/agregar-video.py mover  01-boda.mp4 --posicion 3
+python scripts/agregar-video.py quitar 01-boda.mp4
 ```
 
-El `<video>` del visor se arma solo; la miniatura recibe la insignia de play y el contador
-pasa a `"3 fotos · 1 video"`. La imagen del `poster` conviene sacarla del mismo video (un
-fotograma) y pasarla por el generador para tener su `.webp` parejo.
+Qué hace `agregar`, paso por paso:
+
+| Paso | Resultado |
+|---|---|
+| Valida la extensión | `mp4`, `mov`, `m4v` o `webm` |
+| Detecta duplicados | por hash del contenido: el mismo clip con otro nombre tampoco se sube dos veces |
+| Recompime (con ffmpeg) | H.264 `yuv420p`, CRF 26, preset medium, AAC 128 kb/s, `+faststart`, sin metadatos, lado mayor máx. 1280 px |
+| O copia tal cual | con `--sin-recomprimir`, o si no hay ffmpeg: avisa del códec y del peso. El poster igual sale de un fotograma si hay ffmpeg; `--poster` es obligatorio sólo si no hay ffmpeg o si el fotograma no se puede extraer |
+| Genera el poster | de `--poster`, o del fotograma del segundo 1 (el primero si el video es más corto). JPEG + WebP, máx. 1200 px |
+| Genera la miniatura | JPEG + WebP, máx. 480 px, para la tira del visor |
+| Escribe el item | `assets/video/videos.json` |
+| Regenera el `.js` | `assets/js/galeria-videos.js`, ordenado por `posicion` y luego por orden de carga |
+
+Los archivos quedan en `assets/video/<clave>/`, que es una carpeta **nueva y
+aparte**: `scripts/generar-galeria.py` sigue leyendo sólo `assets/gallery/` y
+escribiendo sólo en `assets/images/galeria/`, así que las dos herramientas nunca
+se pisan.
+
+`videos.json` se puede editar a mano sin problema: cualquier comando del script
+(comprobado con `listar`) regenera `galeria-videos.js` si quedó desfasado, así
+que el sitio nunca muestra una lista vieja. El `.js` sólo se escribe cuando su
+contenido cambia de verdad.
+
+Guarías del script, comprobadas una por una:
+
+- **No deja archivos a medias.** Si algo falla después de copiar el video (un
+  poster inexistente, un códec que ffmpeg no puede leer), borra todo lo que
+  escribió antes de salir, y los temporales quedan fuera del repo.
+- **Detecta el mismo clip con otro nombre** por el sha256 del contenido, con un
+  registro interno `_hashes` que se borra solo cuando queda vacío. A mano no hay
+  que tocarlo.
+- **No pisa un `_hashes` mal formado**: si esa clave viniera con otro tipo de
+  contenido, se reemplaza por un diccionario limpio.
+- **Avisa con un mensaje claro** si `videos.json` tiene un error de sintaxis, en
+  lugar de tirar un `traceback`.
+- **Lee bien el códec de origen.** ffprobe imprime los campos de cada stream en
+  orden alfabético, así que `codec_name` va **antes** que `codec_type`: si se
+  toman en el orden en que llegan, el script informaba `aac` (el códec del audio)
+  en lugar de `h264`, y el aviso de HEVC para Safari nunca disparaba. `probe()`
+  guarda el último `codec_name` y lo usa recién cuando el stream se declara de
+  video.
+- Es **idempotente**: volver a cargar no duplica nada y `quitar` borra del disco
+  los cinco archivos del video (`.mp4`, poster y miniatura en `.jpg` y `.webp`).
+- Los originales nunca se borran ni se mueven.
+
+`index.html` carga los tres archivos en este orden (todos con `defer`):
+`galeria-data.js` → `galeria-videos.js` → `main.js`. `main.js` fusiona las fotos
+primero y **después** inserta los videos encima, así que el orden final se decide
+por el campo `posicion` de cada video, contando fotos y videos:
+
+- `posicion` es el lugar final en la categoría: `1` es el primero.
+- Sin `posicion`, el video va al final de su categoría, en el orden en que se
+  cargó.
+- Un video sin `poster` ni `thumb` se descarta: sin imagen de presentación la
+  tarjeta quedaría rota.
+- Si la categoría no tiene portada y no tiene fotos (como `espejo`, que hoy ya
+  tiene videos pero ninguna foto), el poster del primer video pasa a ser el fondo
+  de la tarjeta. Con fotos presentes gana la primera foto, porque una portada de
+  video vertical no sirve para una tarjeta ancha.
+
+El `<video>` del visor se arma solo; la miniatura recibe la insignia de play y el
+contador pasa a `"3 fotos · 1 video"`.
+
+#### Estado actual de los videos
+
+**11 videos en 5 categorías**, cargados el 4/10/2026. La columna **Pos.** es el
+lugar final dentro de la categoría **contando fotos y videos**, que es como
+funciona `posicion`: por eso los de *quinceanos* (11 fotos) empiezan en la 12 y
+los de *espejo*, que no tiene ninguna foto, arrancan en la 1.
+
+| Categoría | Fotos | Pos. | Archivo en el sitio | Origen | Peso |
+|---|---|---|---|---|---|
+| quinceanos | 11 | 12 | `assets/video/quinceanos/01-xv-01.mp4` | `assets/gallery/15-anos/xv-01.mp4` | 1,26 MB |
+| quinceanos | 11 | 13 | `assets/video/quinceanos/02-xv-02.mp4` | `assets/gallery/15-anos/xv-02.mp4` | 3,64 MB |
+| bodas | 8 | 9 | `assets/video/bodas/01-boda-01.mp4` | `assets/gallery/bodas/boda-01.mp4` | 1,58 MB |
+| bodas | 8 | 10 | `assets/video/bodas/02-boda-02.mp4` | `assets/gallery/bodas/boda-02.mp4` | 2,51 MB |
+| bodas | 8 | 11 | `assets/video/bodas/03-boda-03.mp4` | `assets/gallery/bodas/boda-03.mp4` | 1,96 MB |
+| bodas | 8 | 12 | `assets/video/bodas/04-boda-suiza.mp4` | `assets/gallery/bodas/boda-suiza.mp4` | 1,76 MB |
+| prensa | 5 | 6 | `assets/video/prensa/01-prensa-01.mp4` | `assets/gallery/artistas/prensa-01.mp4` | 2,85 MB |
+| novias | 1 | 2 | `assets/video/novias/01-novias-asesoria.mp4` | `assets/images/galeria/novias/novias_asesoria.mp4` | 3,35 MB |
+| espejo | 0 | 1 | `assets/video/espejo/01-espejo-01.mp4` | `assets/images/galeria/bendito espejo/espejo-01.mp4` | 3,34 MB |
+| espejo | 0 | 2 | `assets/video/espejo/02-espejo-02.mp4` | `assets/images/galeria/bendito espejo/espejo-02.mp4` | 2,47 MB |
+| espejo | 0 | 3 | `assets/video/espejo/03-espejo-03.mp4` | `assets/images/galeria/bendito espejo/espejo-03.mp4` | 2,08 MB |
+
+Cada video trae sus cinco archivos: el `.mp4`, el poster y la miniatura en `.jpg`
+y `.webp` (55 archivos en total). Los posters salen del fotograma del segundo 1 y
+son de 512×910, igual que la miniatura en 270×480; el de *novias* es 576×1024,
+que es el tamaño del original.
+
+La carpeta de origen no importa: el script toma la ruta que se le pase. Los
+cuatro de *bodas*, los dos de *quinceanos* y el de *prensa* estaban sueltos en
+`assets/gallery/<carpeta>/`, junto a las fotos, y el de *novias* dentro de
+`assets/images/galeria/novias/`. Los originales nunca se borran ni se mueven; la
+copia que usa el sitio es la de `assets/video/<clave>/`.
+
+Ojo con esas carpetas de fotos: `generar-galeria.py` ignora todo lo que no sea
+`.jpg`, `.jpeg`, `.png` o `.webp`, así que los `.mp4` que conviven ahí no entran
+en la galería de fotos ni se tocan.
+
+Para sumar uno nuevo, la categoría decide la posición:
+
+```bash
+python scripts/agregar-video.py agregar "assets/gallery/bodas/boda-04.mp4" --categoria bodas --posicion 13
+```
+
+Sin `--posicion` el video se va al final de la categoría, que es lo que hay que
+usar cuando la categoría es de fotos y los videos van detrás.
+
+#### Recomprimir o copiar tal cual
+
+El CRF 26 por defecto sirve para material crudo (un `.mov` de cámara, un VHS, una
+grabación sin comprimir): ahí baja el peso y normaliza el códec. Pero si el
+archivo **ya venía optimizado para web**, recomprimirlo lo engorda. Los 11
+clips del repo tienen el mismo perfil — H.264 High, `yuv420p`, *faststart*,
+512×910 (576×1024 el de novias) y 230–612 kb/s — así que **pasaron los 8
+primeros con `--sin-recomprimir` y los 3 de Espejo con el CRF 26**, que fue el
+error que motivó esta corrección:
+
+| Lote | Originales | Instalados | |
+|---|---|---|---|
+| 3 de Espejo (CRF 26) | 5,48 MB | 7,89 MB | +44 % |
+| 8 del resto (tal cual) | 19,37 MB | 19,37 MB | 0 % |
+| Medido con el CRF 26 sobre `boda-02` | 2,51 MB | 3,71 MB | +48 % |
+
+O sea: los 8 tal cual pesan lo mismo que sus originales y, de haberlos
+recomprimido, habrían salido alrededor de 28 MB (+9 MB de sobra).
+
+```bash
+python scripts/agregar-video.py agregar "<origen>" --categoria espejo --sin-recomprimir
+```
+
+El poster y la miniatura se siguen generando (de un fotograma, si hay ffmpeg); lo
+único que se pierde es el borrado de metadatos y la normalización de códec. Para
+decidir antes de subir, un vistazo al original:
+
+```bash
+ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,bit_rate -of default=noprint_wrappers=1 "video.mp4"
+```
+
+El propio script también lo avisa: con `--sin-recomprimir` imprime el códec de
+origen que leyó, y si es HEVC (lo habitual en `.mov` y `.m4v` del celular)
+recuerda que Chrome y Firefox lo ven pero Safari a veces no.
+
+Para deshacer el error de los 3 de Espejo alcanza con volver a cargarlos con
+`--sin-recomprimir`, quitando antes los archivos instalados:
+
+```bash
+python scripts/agregar-video.py quitar 01-espejo-01.mp4 --categoria espejo
+python scripts/agregar-video.py agregar "assets/images/galeria/bendito espejo/espejo-01.mp4" --categoria espejo --sin-recomprimir
+```
+
+#### Con qué nombre se puede llamar a un video
+
+`mover` y `quitar` aceptan varias formas, así que no hace falta acordarse del
+nombre exacto con el que quedó instalado:
+
+| Se escribe | También funciona |
+|---|---|
+| `01-espejo-01.mp4` | `espejo-01.mp4`, `espejo-01.mov`, `a`, `01`, `1`, `assets/video/espejo/01-espejo-01.mp4` |
+
+Si la referencia coincide con más de un video, el script pregunta a qué categoría
+se refiere en vez de elegir por su cuenta.
+
+#### Los videos no se pisan con `generar-galeria.py`
+
+Vale dejarlo por escrito porque `generar-galeria.py` **borra** lo que genera, y
+las dos herramientas comparten la palabra `galeria` en la ruta:
+
+- `limpiar_destino()` borra únicamente lo que el propio script escribe, según el
+  patrón `^(\d{2}(-thumb)?\.(jpg|jpeg|webp)|portada\.(jpg|jpeg|webp))$`. Un
+  `.mp4` nunca coincide, así que un video que alguien dejara dentro de
+  `assets/images/galeria/<clave>/` se salva.
+- Hay un `shutil.rmtree()` en `procesar_categoria()`, pero es la única rama
+  destructiva y es fácil de leer: se ejecuta sólo cuando la categoría se queda
+  **sin una sola imagen de origen utilizable y sin foto de reemplazo**, y borra
+  `assets/images/galeria/<clave>` completa. Las siete claves que el script
+  maneja son `quinceanos`, `bodas`, `novias`, `prensa`, `espejo`,
+  `corporativos` y `docencia`.
+
+Dónde cae hoy cada video, entonces:
+
+| Carpeta | Qué es | ¿La toca el generador? |
+|---|---|---|
+| `assets/video/<clave>/` | copia canónica, la que usa el sitio | no: el generador ni sabe que existe |
+| `assets/images/galeria/bendito espejo/` | originales a mano | no: `espejo` es una clave, pero la carpeta se llama `bendito espejo` y nunca coincide con el destino |
+| `assets/gallery/<origen>/` | fotos originales | no: sólo lee imágenes; los `.mp4` que conviven ahí se ignoran |
+| `assets/images/galeria/novias/` | fotos generadas de *Exclusivo Novias* | parcial: regenera `01*` y `portada*`; `novias_asesoria.mp4` no se toca |
+
+Ojo con `espejo`: hoy **no existe** `assets/images/galeria/espejo/`, porque la
+fuente está en la carpeta manual `bendito espejo`. Si algún día se creara
+`assets/gallery/espejo/` con fotos, el generador empezaría a escribir
+`assets/images/galeria/espejo/` — y como `espejo` no tiene entrada en `RESALTOS`,
+si esa fuente quedara vacía borraría esa carpeta (que entonces sería sólo
+generada). Los videos están a salvo en `assets/video/espejo/` en cualquier
+caso, y por eso conviene no dejar `.mp4` sueltos en las carpetas de fotos: la
+copia de `assets/video/<clave>/` es la única que el sitio lee.
+
+Los 8 que se cargaron el 4/10/2026 vienen de las carpetas de fotos, y es un caso
+real que conviene tener controlado:
+
+| Origen | Categoría | Destino |
+|---|---|---|
+| `assets/gallery/15-anos/xv-01.mp4`, `xv-02.mp4` | quinceanos | `assets/video/quinceanos/` |
+| `assets/gallery/bodas/boda-01..03.mp4`, `boda-suiza.mp4` | bodas | `assets/video/bodas/` |
+| `assets/gallery/artistas/prensa-01.mp4` | prensa | `assets/video/prensa/` |
+| `assets/images/galeria/novias/novias_asesoria.mp4` | novias | `assets/video/novias/` |
+
+Mientras el script no se vuelva a ejecutar, esos originales están donde siempre.
+Si algún día se corre `generar-galeria.py`, los de `assets/gallery/` se ignoran
+(no son imágenes) y el de `novias_asesoria.mp4` se salva del `rmtree` porque
+`novias` tiene foto de reemplazo. Aun así, la copia buena es la de
+`assets/video/<clave>/`: si un original se perdiera, el sitio sigue sirviendo.
 
 #### Estados del render
 
@@ -657,8 +880,9 @@ Para ajustar el aire de toda la página, alcanza con tocar `--section-y`.
 - 0 errores de consola y de red; 0 scroll horizontal.
 - Mosaico de galería: 4 columnas con filas `[2, 4, 1]` desde 1024 px; 2 columnas en 768 px;
   1 columna en 390 px. Ninguna tarjeta se solapa ni se sale de la grilla.
-- Las 7 categorías arrancan vacías: la tarjeta muestra *Próximamente* y el aviso
-  funcional del visor entra completo en la ventana en los seis anchos.
+- Las 7 categorías arrancaban vacías (hoy `espejo` ya tiene 3 videos): la tarjeta
+  muestra *Próximamente* y el aviso funcional del visor entra completo en la
+  ventana en los seis anchos.
 - Con medios inyectados en caliente, el visor abre `1 / 3`, decodifica la imagen con
   altura real y ubica la figura entre la barra y la tira de miniaturas.
 - Ritmo vertical medido entre bloques de contenido:
@@ -752,6 +976,57 @@ navegador desde antes de este cambio (el `color-mix()` con `calc()` multiplicati
 válido en CSS), así que el hero no pinta ese degradé y hereda el fondo de `body`; y el
 `box-shadow` del botón flotante de WhatsApp se congela al diff porque lo anima
 `pulse-wa` en bucle infinito. Los resplandores no se tocan.
+
+**Videos en la galería (Chrome/CDP, una sola pasada, con los 11 videos cargados)**
+
+Comprobado sobre el sitio real, no sobre los datos: los contadores se contrastan
+contra `window.DI_GALERIA` (fotos) y `window.DI_GALERIA_VIDEOS` (videos), se
+recorre la tira de cada categoría para leer el orden final, y **los 11 videos se
+abren de verdad** en el visor.
+
+| Chequeo | Resultado |
+|---|---|
+| Contadores de las 7 categorías | «11 fotos · 2 videos» · «8 fotos · 4 videos» · «1 foto · 1 video» · «5 fotos · 1 video» · «3 videos» · «6 fotos» · «5 fotos» |
+| Orden final de la tira | los videos caen **detrás** de las fotos y en el orden pedido: `FFFFFFFFFFVV` · `FFFFFFFFVVVV` · `FV` · `FFFFFV` · `VVV` |
+| Apertura de los 11 videos | `readyState 4` en los once, con su poster, sin error de medios y con el `<video>` visible |
+| Duraciones | xv-01 15,84 s · xv-02 100,71 s · boda-01 22,90 s · boda-02 50,67 s · boda-03 43,47 s · boda-suiza 42,17 s · prensa-01 46,25 s · novias 44,81 s · espejo 28,70 / 24,10 / 20,27 s |
+| Dimensiones | 512×910 los diez, 576×1024 el de novias (es el tamaño del original) |
+| Consola y red | 0 errores de consola y 0 peticiones con error (28 abortos `ERR_ABORTED` de carga lazy, del navegador) |
+| Scroll horizontal | `scrollWidth` = `clientWidth` = 1440 |
+| Estático | 7 claves, 11 items, 55 archivos en disco, **0 inconsistencias** entre `videos.json`, `galeria-videos.js` y el disco; los 55 archivos decodifican (Pillow `verify()` y caja `ftyp` de los mp4) |
+
+Los scripts de verificación se ejecutaron **fuera del repositorio**
+(`C:\Users\migue\AppData\Local\Temp\opencode\`, con `puppeteer-core` instalado
+fuera también) y se borran al terminar, para no dejar archivos de prueba en el
+proyecto: `puppeteer` contra el Chrome del sistema
+(`C:\Program Files\Google\Chrome\Application\chrome.exe`, 154.0.8037.97), un
+solo arranque y una sola pestaña, con `setCacheEnabled(false)` por el punto 1 de
+abajo.
+
+Cuatro cosas del sitio hacen que una medición automática dé falsos negativos.
+Están anotadas porque las cuatro se leen como un error del código y son fáciles
+de perseguir de nuevo:
+
+1. **Chrome revalida con caché heurística.** El sitio es estático y no manda
+   `Cache-Control`, así que entre navegaciones del mismo perfil Chrome puede
+   volver a usar en memoria el `galeria-videos.js` de la carga anterior — la
+   versión vacía. En la prueba hay que desactivar la caché (`page.setCacheEnabled(false)`),
+   o recargar con la caché desactivada. No es un fallo del sitio: `galeria-data.js`
+   se comporta igual.
+2. **Las portadas de las tarjetas usan `loading="lazy"`**, y Chrome aborta la
+   carga de una imagen que sale de pantalla (`net::ERR_ABORTED`). Si se mide
+   `naturalWidth` sin más, salen rotas. Hay que forzar `img.loading = 'eager'`
+   primero y contar los abortos aparte: no son requests con error.
+3. **`main.js` aplica el `src` y el `poster` del `<video>` 160 ms después del
+   click** (`setTimeout(aplicar, 160)`, dentro de `pintarMedio`). El contador, en
+   cambio, se actualiza en el momento. Si se lee el video apenas se hace clic, se
+   mide el video anterior: hay que esperar a que `currentSrc` sea el archivo
+   recién pedido y `readyState >= 1`.
+4. **La lista fusionada (fotos + videos) es privada.** `main.js` la guarda en un
+   objeto de módulo, así que `window.DI_GALERIA` sigue siendo sólo la entrada de
+   fotos: leer `DI_GALERIA.espejo.items` da `[]` aunque la tarjeta muestre «3
+   videos». Lo esperado se arma con los dos archivos de datos, y en el visor los
+   videos se localizan por las miniaturas que llevan `.lightbox__thumb-play`.
 
 ### Auditoría final (sin cambios de código)
 

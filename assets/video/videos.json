@@ -1,0 +1,133 @@
+{
+  "_comentario": "Fuente de verdad de los VIDEOS de la galería. Editar a mano o con scripts/agregar-video.py (que además regenera assets/js/galeria-videos.js a partir de este archivo). Las FOTOS viven aparte, en assets/gallery y assets/js/galeria-data.js: nunca se mezclan. La herramienta escribe además una clave _hashes con el sha256 de cada archivo original, para no volver a cargar el mismo video; se borra sola cuando queda vacía.",
+  "_campos": {
+    "src": "assets/video/<clave>/NN-slug.mp4",
+    "poster": "imagen de presentación (JPEG/WebP) — obligatoria",
+    "thumb": "miniatura para la tira del visor — si falta, se usa el poster",
+    "alt": "texto alternativo; por defecto '<título de la categoría> — video N'",
+    "posicion": "lugar final dentro de la categoría contando fotos y videos (1 = primero). Si falta, va al final",
+    "w": "ancho del poster en px (opcional)",
+    "h": "alto del poster en px (opcional)"
+  },
+  "quinceanos": [
+    {
+      "src": "assets/video/quinceanos/01-xv-01.mp4",
+      "poster": "assets/video/quinceanos/01-xv-01.jpg",
+      "thumb": "assets/video/quinceanos/01-xv-01-thumb.jpg",
+      "alt": "15 Años — video 1",
+      "posicion": 12,
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/quinceanos/02-xv-02.mp4",
+      "poster": "assets/video/quinceanos/02-xv-02.jpg",
+      "thumb": "assets/video/quinceanos/02-xv-02-thumb.jpg",
+      "alt": "15 Años — video 2",
+      "posicion": 13,
+      "w": 512,
+      "h": 910
+    }
+  ],
+  "bodas": [
+    {
+      "src": "assets/video/bodas/01-boda-01.mp4",
+      "poster": "assets/video/bodas/01-boda-01.jpg",
+      "thumb": "assets/video/bodas/01-boda-01-thumb.jpg",
+      "alt": "Bodas — video 1",
+      "posicion": 9,
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/bodas/02-boda-02.mp4",
+      "poster": "assets/video/bodas/02-boda-02.jpg",
+      "thumb": "assets/video/bodas/02-boda-02-thumb.jpg",
+      "alt": "Bodas — video 2",
+      "posicion": 10,
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/bodas/03-boda-03.mp4",
+      "poster": "assets/video/bodas/03-boda-03.jpg",
+      "thumb": "assets/video/bodas/03-boda-03-thumb.jpg",
+      "alt": "Bodas — video 3",
+      "posicion": 11,
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/bodas/04-boda-suiza.mp4",
+      "poster": "assets/video/bodas/04-boda-suiza.jpg",
+      "thumb": "assets/video/bodas/04-boda-suiza-thumb.jpg",
+      "alt": "Bodas — video 4",
+      "posicion": 12,
+      "w": 512,
+      "h": 910
+    }
+  ],
+  "novias": [
+    {
+      "src": "assets/video/novias/01-novias-asesoria.mp4",
+      "poster": "assets/video/novias/01-novias-asesoria.jpg",
+      "thumb": "assets/video/novias/01-novias-asesoria-thumb.jpg",
+      "alt": "Exclusivo Novias y Asesorías — video 1",
+      "posicion": 2,
+      "w": 576,
+      "h": 1024
+    }
+  ],
+  "prensa": [
+    {
+      "src": "assets/video/prensa/01-prensa-01.mp4",
+      "poster": "assets/video/prensa/01-prensa-01.jpg",
+      "thumb": "assets/video/prensa/01-prensa-01-thumb.jpg",
+      "alt": "Prensa — video 1",
+      "posicion": 6,
+      "w": 512,
+      "h": 910
+    }
+  ],
+  "espejo": [
+    {
+      "src": "assets/video/espejo/01-espejo-01.mp4",
+      "poster": "assets/video/espejo/01-espejo-01.jpg",
+      "thumb": "assets/video/espejo/01-espejo-01-thumb.jpg",
+      "alt": "Bendito Espejo — video 1",
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/espejo/02-espejo-02.mp4",
+      "poster": "assets/video/espejo/02-espejo-02.jpg",
+      "thumb": "assets/video/espejo/02-espejo-02-thumb.jpg",
+      "alt": "Bendito Espejo — video 2",
+      "w": 512,
+      "h": 910
+    },
+    {
+      "src": "assets/video/espejo/03-espejo-03.mp4",
+      "poster": "assets/video/espejo/03-espejo-03.jpg",
+      "thumb": "assets/video/espejo/03-espejo-03-thumb.jpg",
+      "alt": "Bendito Espejo — video 3",
+      "w": 512,
+      "h": 910
+    }
+  ],
+  "corporativos": [],
+  "docencia": [],
+  "_hashes": {
+    "assets/video/espejo/01-espejo-01.mp4": "74e3f5dde5b0df87f9127a96fc33a4a5be23cd6c4afb749e87d3b8b2bf4b7638",
+    "assets/video/espejo/02-espejo-02.mp4": "1853032414599870bfc5ef1a1fde539f2f548fc78ddc0880368571c602e3bfd4",
+    "assets/video/espejo/03-espejo-03.mp4": "381f7ba9113206c1e99e660df99706f9a3084fe63bfefab0c7e8592af0aba56c",
+    "assets/video/quinceanos/01-xv-01.mp4": "147241056ab6e7be3ea440283d16e660d9fd15007df09f51fa2572f783d93f97",
+    "assets/video/quinceanos/02-xv-02.mp4": "ffae3bda94a7a67e97df007cab7f6b5746cd0f91006b0b7b9b70759715ae69bd",
+    "assets/video/bodas/01-boda-01.mp4": "2296ebfc679cbd816da3ac3a43c2357b6e8ff8380912d5c33012534be7ad659b",
+    "assets/video/bodas/02-boda-02.mp4": "d001e2c75f1161d960d78bd734dd28f8a4a5a527bc772cc26777005388406287",
+    "assets/video/bodas/03-boda-03.mp4": "291af6ae95c1cd8c4a76e0d19073aed4aeb6c24bbbd2e9e2f04ab19072254148",
+    "assets/video/bodas/04-boda-suiza.mp4": "1d1fd3f30d6a07b754acf685b09d85724e927a2dd5ce86f8e3dcc5473eb44351",
+    "assets/video/prensa/01-prensa-01.mp4": "4ca77a10ba4fef5e2bdd9cb55e8278c7c50c8a7e9f57ae350ea2e748dde8599c",
+    "assets/video/novias/01-novias-asesoria.mp4": "294b112df6794d3786f78b75b1701abc18ee85aa284616308d3be28c0861ccac"
+  }
+}

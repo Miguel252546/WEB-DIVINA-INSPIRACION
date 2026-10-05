@@ -24,17 +24,28 @@
      01. CONFIGURACIÓN EDITABLE
      -----------------------------------------------------------------------
      GALERIA: títulos e iconos de cada categoría; el contenido multimedia
-     (portada + items) llega desde assets/js/galeria-data.js, un archivo
-     GENERADO por scripts/generar-galeria.py a partir de las fotos originales
-     de assets/gallery/<carpeta>/.
+     (portada + items) llega de DOS archivos generados, y ninguno se edita a mano:
 
-       - Flujo normal: copiar la foto a assets/gallery/<carpeta>/ y ejecutar
+       - FOTOS → assets/js/galeria-data.js, que genera scripts/generar-galeria.py
+         desde los originales de assets/gallery/<carpeta>/.
+       - VIDEOS → assets/js/galeria-videos.js, que genera scripts/agregar-video.py
+         desde assets/video/videos.json. Cada video se agrega con el script, que
+         recomprime el archivo y arma poster y miniatura; la fuente editable es
+         `assets/video/videos.json` y el script regenera el .js a partir de ella.
+
+       - Flujo de fotos: copiar la foto a assets/gallery/<carpeta>/ y ejecutar
          `python scripts/generar-galeria.py`. Ni el HTML ni el CSS se tocan.
-       - Para sumar un video a mano, agregar el objeto { tipo: 'video', src,
-         thumb, poster, alt } directamente en el `items` de abajo: el visor ya
-         lo soporta y le dibuja la insignia de reproducción.
+       - Flujo de videos: pasar el archivo (mp4, mov, m4v o webm) por
+         `python scripts/agregar-video.py agregar "<archivo>" --categoria <clave>`.
+         NO se suman a mano en este archivo: `items` se arma en tiempo de ejecución
+         con las fotos primero y los videos intercalados encima (fusionarVideos).
+
+       - Las dos herramientas son independientes y no se pisan: generar-galeria.py
+         sólo lee assets/gallery/ y escribe assets/images/galeria/, mientras que
+         los videos y sus imágenes viven en assets/video/<clave>/.
        - Si assets/js/galeria-data.js falta, está vacío o le faltan claves, la
          fusión se omite sin error: la categoría cae en el estado "Próximamente".
+         Lo mismo pasa con assets/js/galeria-videos.js.
 
      EQUIPO: se usa para mostrar miembros adicionales en la ficha del equipo.
        Dejalo vacío si sólo se usan las fotografías ya incluidas en el HTML.
@@ -45,8 +56,9 @@
   /* GALERÍA
      ---------------------------------------------------------------------------
      Objeto único de configuración. Las tarjetas, los contadores, el visor y los
-     estados vacíos se renderizan 100% desde acá: para agregar fotos o videos
-     alcanza con sumar objetos a `items`, sin tocar HTML ni CSS.
+     estados vacíos se renderizan 100% desde acá: `items` arranca vacío y se
+     completa en tiempo de ejecución con lo que traigan los dos archivos de
+     datos, sin tocar HTML ni CSS.
 
      Estructura de cada categoría:
        titulo  → texto visible en la tarjeta, en el visor y en el aria-label.
@@ -59,8 +71,13 @@
 
      `items: []` es el estado por defecto: la tarjeta muestra la píldora
      PRÓXIMAMENTE y el visor muestra el aviso "Muy pronto sumamos fotos y
-     videos reales de esta área.". Las rutas .jpg generan automáticamente su
+     videos reales de este área.". Las rutas .jpg generan automáticamente su
      variante .webp para <picture>: ambos archivos existen siempre.
+
+     Para sumar fotos o videos NO se edita este bloque: se usan
+     `python scripts/generar-galeria.py` (fotos) y
+     `python scripts/agregar-video.py` (videos), que regeneran sus archivos de
+     datos y mantienen el orden final contando fotos y videos.
      --------------------------------------------------------------------------- */
 
   const GALERIA = {
@@ -136,6 +153,85 @@
       cat.portada = typeof entrada.portada === 'string' && entrada.portada ? entrada.portada : null;
       cat.portadaW = entrada.portadaW;
       cat.portadaH = entrada.portadaH;
+    });
+  })();
+
+  /* Fusión con assets/js/galeria-videos.js.
+     Se aplica DESPUÉS de fusionarDatosGaleria y a propósito no reemplaza `items`:
+     las fotos entran primero (desde assets/js/galeria-data.js) y los videos se
+     intercalan sobre una copia, de modo que un video añadido con
+     `scripts/agregar-video.py` convive con las fotos sin pisarlas.
+
+     - Si el archivo no se cargó, no es un objeto o la lista de la categoría no es
+       un array, la categoría se deja como está: el sitio sigue con las fotos.
+     - Un video sin `src`, o sin `poster` ni `thumb`, se descarta: sin una imagen
+       de presentación la tarjeta y la miniatura quedarían rotas.
+     - `posicion` es el lugar final dentro de la categoría contando fotos y videos
+       (1 = primero). Los que no la traen se agregan al final, en el orden del
+       archivo, que es el orden en que se fueron cargando.
+     - Los arrays de window.DI_GALERIA_VIDEOS no se tocan: se trabaja sobre una
+       copia, así que regenerar el archivo en caliente no altera la fuente. */
+  (function fusionarVideos() {
+    const datos = window.DI_GALERIA_VIDEOS;
+    if (!datos || typeof datos !== 'object') return;
+
+    Object.keys(GALERIA).forEach(function (clave) {
+      const cat = GALERIA[clave];
+      const lista = datos[clave];
+      if (!cat || !Array.isArray(lista)) return;
+
+      const videos = lista.filter(function (v) {
+        return v && typeof v.src === 'string' && v.src &&
+          ((typeof v.poster === 'string' && v.poster) || (typeof v.thumb === 'string' && v.thumb));
+      }).map(function (v) {
+        const poster = (typeof v.poster === 'string' && v.poster) || (typeof v.thumb === 'string' && v.thumb) || '';
+        return {
+          tipo: 'video',
+          src: v.src,
+          thumb: (typeof v.thumb === 'string' && v.thumb) || poster,
+          poster: poster,
+          alt: (typeof v.alt === 'string' && v.alt) || '',
+          w: parseInt(v.w, 10) || 0,
+          h: parseInt(v.h, 10) || 0,
+          posicion: parseInt(v.posicion, 10) || 0
+        };
+      });
+
+      if (!videos.length) return;
+
+      /* Copia: los arrays de DI_GALERIA_VIDEOS y de DI_GALERIA quedan intactos. */
+      const items = cat.items.slice();
+
+      /* Primero los que pidieron lugar, de menor a mayor y en orden estable para
+         los que comparten posición, insertando en el índice final que pidieron. */
+      const conPos = videos.filter(function (v) { return v.posicion > 0; });
+      conPos.sort(function (a, b) { return a.posicion - b.posicion; });
+      conPos.forEach(function (v) {
+        const indice = Math.min(v.posicion - 1, items.length);
+        items.splice(indice, 0, v);
+      });
+
+      /* Después, al final y en el orden del archivo, los que no pidieron lugar. */
+     videos.filter(function (v) { return !(v.posicion > 0); }).forEach(function (v) {
+        items.push(v);
+      });
+
+      cat.items = items;
+
+      /* Portada: si la categoría no tiene y NO tiene fotos (por ejemplo "espejo",
+         que hoy está vacía), la imagen de presentación del primer video pasa a ser
+         el fondo de la tarjeta. Con fotos presente se deja la decisión en
+         portadaDe(), que prefiere la primera foto: una portada de video vertical
+         no sirve de fondo para una tarjeta ancha. */
+      const hayFoto = items.some(function (item) { return item.tipo !== 'video'; });
+      if (!cat.portada && !hayFoto) {
+        const primero = items[0];
+        cat.portada = primero.poster || primero.thumb || null;
+        if (cat.portada && primero.w > 0 && primero.h > 0) {
+          cat.portadaW = primero.w;
+          cat.portadaH = primero.h;
+        }
+      }
     });
   })();
 
@@ -600,14 +696,21 @@
 
   /* Normaliza un medio: todo item expone tipo, src, thumb, poster y alt.
      `w`/`h` son opcionales (los agrega el generador) y sólo sirven para
-     reservar el espacio de la imagen. */
+     reservar el espacio de la imagen.
+
+     Un video NUNCA usa su `.mp4` como imagen: si no trae `thumb` se cae al
+     `poster` (y al revés). Sin una de las dos igual la miniatura quedaría
+     apuntando a un archivo que el navegador no puede decodificar como <img>. */
   function normalizarMedio(item, titulo, indice) {
     const src = (item && item.src) || '';
+    const esVideo = !!(item && item.tipo === 'video');
+    const poster = (item && typeof item.poster === 'string' && item.poster) ||
+      (item && typeof item.thumb === 'string' && item.thumb) || '';
     return {
-      tipo: item && item.tipo === 'video' ? 'video' : 'foto',
+      tipo: esVideo ? 'video' : 'foto',
       src: src,
-      thumb: (item && item.thumb) || (item && item.poster) || src,
-      poster: (item && item.poster) || '',
+      thumb: (item && typeof item.thumb === 'string' && item.thumb) || poster || src,
+      poster: poster,
       alt: (item && item.alt) || (titulo + ' — ' + (indice + 1)),
       w: parseInt(item && item.w, 10) || 0,
       h: parseInt(item && item.h, 10) || 0
@@ -634,13 +737,18 @@
     return plural(fotos, 'foto', 'fotos');
   }
 
-  /* Imagen de fondo de la tarjeta: `portada` de la categoría y, si faltara, la
-     foto completa del primer medio. Nunca la miniatura de la tira: a ese tamaño
-     se ve pixelada como fondo. */
+  /* Imagen de fondo de la tarjeta, en este orden: la `portada` de la categoría,
+     la primera foto completa y, si la categoría no tuviera ninguna, el poster
+     del primer video. Nunca devuelve el `src` de un video: el `.mp4` no se
+     puede pintar como imagen de fondo. Tampoco la miniatura de la tira: a ese
+     tamaño se ve pixelada como fondo. */
   function portadaDe(cat, items) {
     if (cat.portada) return cat.portada;
     if (!items.length) return '';
-    return items[0].src || items[0].thumb || '';
+    const foto = items.filter(function (m) { return m.tipo !== 'video'; })[0];
+    if (foto) return foto.src || foto.thumb || '';
+    const video = items[0];
+    return video.poster || video.thumb || '';
   }
 
   function initGaleria() {
@@ -761,7 +869,15 @@
         }
         if (video) {
           video.hidden = false;
-          if (item.poster) video.poster = item.poster;
+          /* El poster se asigna siempre: si el video no lo tiene, se QUITA el
+             atributo (ponerlo en "" haría que el navegador intente pintar la
+             propia página). Si no, el <video> queda con el poster del video
+             anterior todavía en pantalla. */
+          if (item.poster) {
+            video.poster = item.poster;
+          } else {
+            video.removeAttribute('poster');
+          }
           if (video.getAttribute('src') !== item.src) video.setAttribute('src', item.src);
           video.setAttribute('aria-label', item.alt);
         }
@@ -770,6 +886,7 @@
           video.pause();
           video.hidden = true;
           video.removeAttribute('src');
+          video.removeAttribute('poster');
           video.load();
         }
         if (img) {
@@ -858,7 +975,7 @@
       return '' +
         '<button type="button" class="lightbox__thumb" data-indice="' + i + '"' +
         ' aria-label="' + html(item.alt) + '">' +
-          '<img src="' + html(item.thumb || item.src) + '" alt="" loading="lazy" decoding="async">' +
+          '<img src="' + html(item.thumb || item.poster || item.src) + '" alt="" loading="lazy" decoding="async">' +
           (item.tipo === 'video'
             ? '<span class="lightbox__thumb-play"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"></path></svg></span>'
             : '') +

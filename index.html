@@ -692,7 +692,7 @@
       </ul>
 
       <div class="modal-actions">
-        <a href="https://wa.me/549351225946?text=Hola!%20Quisiera%20reservar%20disponibilidad%20de%20fecha%20para%20Bendito%20Espejo." target="_blank" rel="noopener" class="btn btn-primary">
+        <a href="https://wa.me/5493541566290?text=Hola!%20Quisiera%20reservar%20disponibilidad%20de%20fecha%20para%20Bendito%20Espejo." target="_blank" rel="noopener" class="btn btn-primary">
           <svg class="icon" aria-hidden="true"><use href="#i-whatsapp"></use></svg>
           Reservar Disponibilidad vía WhatsApp
         </a>
@@ -730,10 +730,18 @@
   </defs>
 </svg>
 
-<!-- Datos de la galería (portadas + items por categoría). Generado por
-     scripts/generar-galeria.py a partir de assets/gallery/. Debe cargarse antes
-     de main.js, que fusiona ambos objetos y deja vacías las categorías sin datos. -->
+<!-- Datos de la galería (portadas + items por categoría). Se cargan tres
+     archivos generados y ninguno se edita a mano:
+       1. galeria-data.js   → FOTOS.  Lo genera scripts/generar-galeria.py desde
+          assets/gallery/. Cada .jpg trae su .webp y las dos rutas están escritas
+          explícitas (no hay una función que las adivine).
+       2. galeria-videos.js → VIDEOS. Lo genera scripts/agregar-video.py desde
+          assets/video/videos.json. Acepta { tipo, src, thumb, poster, alt } y
+          opcionalmente w/h para reservar espacio.
+     Los dos deben cargarse antes de main.js, que los fusiona con los datos que
+     trae hardcodeados y deja vacías las categorías sin datos. -->
 <script src="assets/js/galeria-data.js" defer></script>
+<script src="assets/js/galeria-videos.js" defer></script>
 <script src="assets/js/main.js" defer></script>
 </body>
 </html>
