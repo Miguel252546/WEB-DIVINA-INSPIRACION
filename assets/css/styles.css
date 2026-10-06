@@ -3089,6 +3089,13 @@ button.service-card {
     width: 100%;
     justify-content: center;
   }
+  /* Las tres métricas del hero en una sola columna: con dos columnas a esta
+     medida la etiqueta larga ("Años formando organizadores de eventos") se
+     parte a dos renglones y queda desalineada de las otras dos. */
+  .hero-stats {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
   /* Mosaico a 1 columna: todo vuelve a span 1 para no crear columnas implícitas. */
   .gallery-grid {
     grid-template-columns: 1fr;
