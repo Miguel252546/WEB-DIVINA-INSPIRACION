@@ -3144,10 +3144,15 @@ button.service-card {
     grid-template-columns: 1fr;
     justify-items: start;
   }
-  /* Los dos botones flotantes se apilan y ocupan dos alturas: el pie deja
-     libre justo ese alto para que el copyright no quede debajo de ellos. */
+  /* En móvil los dos botones flotantes se apilan a la derecha (Instagram arriba,
+     WhatsApp abajo). Para que el texto del pie (copyright y ubicación) no pase
+     por debajo de esa columna fija, se reserva espacio lateral en .footer-bottom
+     y se reduce el padding-bottom del pie a ~24 px. */
   .site-footer {
-    padding-bottom: calc(var(--fab-bottom) + (var(--fab-size) * 2) + var(--fab-gap) + 10px);
+    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  }
+  .footer-bottom {
+    padding-right: calc(var(--fab-size) + 22px);
   }
   .lightbox__nav {
     width: 42px;
